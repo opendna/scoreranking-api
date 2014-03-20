@@ -1,5 +1,8 @@
 #encoding: utf-8
 
+#
+# ランキング取得API
+#
 class RankingsController < ApplicationController
 
   #

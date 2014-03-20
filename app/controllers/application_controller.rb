@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   # レスポンスコード
   #
   RESULT_OK = 0
+  RESULT_NG = 9
 
   #
   # スコア

@@ -1,5 +1,8 @@
 #encoding: utf-8
 
+#
+# ユーザ情報API
+#
 class UserInfosController < ApplicationController
 
   #

@@ -1,5 +1,8 @@
 #encoding: utf-8
 
+#
+# スコア記録API
+#
 class ScoresController < ApplicationController
 
   #
