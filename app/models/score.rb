@@ -11,7 +11,7 @@ class Score
   CACHE_KEY_FORMAT  = "score_%d_%d" # userinfo_[app_id]_[game_id]_[user_id]
 
   # テーブル名リスト
-  TABLENAMELIST_CACHE_KEY = "tablenamelist"
+  TABLENAMELIST_CACHE_KEY_FORMAT = "tablenamelist_%d" # tablenamelist_[app_id]
    TABLENAMELIST_DELEMITER = "|"
 
   #
@@ -19,7 +19,7 @@ class Score
   #
   def self.create_table(app_id, game_id)
     table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id)
-    unless exist_table? table_name
+    unless exist_table?(app_id, table_name)
       sql =<<-EOS
         create table #{table_name} (
           user_id integer not null,
@@ -30,7 +30,7 @@ class Score
       ActiveRecord::Base.connection.execute sql
       
       # キャッシュにテーブル名を追加
-      Cache::append_to_cache(TABLENAMELIST_CACHE_KEY, "#{table_name}#{TABLENAMELIST_DELEMITER}")
+      Cache::append_to_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), "#{table_name}#{TABLENAMELIST_DELEMITER}")
     end
   end
   
@@ -50,7 +50,7 @@ class Score
   #
   def self.delete(app_id, game_id, user_id)
     table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id);
-    if exist_table? table_name
+    if exist_table?(app_id, table_name)
       sql =<<-EOS
         delete from #{table_name} where user_id = #{user_id};
       EOS
@@ -61,12 +61,12 @@ class Score
   #
   #
   #
-  def self.exist_table?(name)
-    tablename_list = Cache::find_from_cache(TABLENAMELIST_CACHE_KEY)
+  def self.exist_table?(app_id, name)
+    tablename_list = Cache::find_from_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id))
 
     unless tablename_list
       # 無い場合は作成する
-      tablename_list = regist_tablename_list
+      tablename_list = regist_tablename_list(app_id)
     end
     
     tablenames = tablename_list.split(TABLENAMELIST_DELEMITER)
@@ -77,21 +77,18 @@ class Score
   #
   #
   #
-  def self.regist_tablename_list
-    # TODO 
+  def self.regist_tablename_list(app_id)
     sql =<<-EOS
-      show tables;
+      select table_name from information_schema.tables where table_name like 'score_#{app_id}%';
     EOS
     tables = ActiveRecord::Base.connection.select(sql)
     
     tablename_list = ""
     tables.each do |tableinfo|
-      tableinfo.each_value do |tablename|
-        tablename_list += "#{tablename}#{TABLENAMELIST_DELEMITER}"
-      end
+      tablename_list += "#{tableinfo['table_name']}#{TABLENAMELIST_DELEMITER}"
     end
 
-    Cache::save_to_cache(TABLENAMELIST_CACHE_KEY, tablename_list)
+    Cache::save_to_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), tablename_list)
     return tablename_list
   end
 end
