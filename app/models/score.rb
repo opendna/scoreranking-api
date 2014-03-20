@@ -12,7 +12,7 @@ class Score
 
   # テーブル名リスト
   TABLENAMELIST_CACHE_KEY_FORMAT = "tablenamelist_%d" # tablenamelist_[app_id]
-   TABLENAMELIST_DELEMITER = "|"
+  TABLENAMELIST_DELEMITER = "|"
 
   #
   #
@@ -66,7 +66,8 @@ class Score
   end
 
   def self.get_tablename_list_array(app_id)
-    get_tablename_list(app_id).split(TABLENAMELIST_DELEMITER)
+    tablename_list = get_tablename_list(app_id)
+    tablename_list.split(TABLENAMELIST_DELEMITER) if tablename_list
   end
   
   #
