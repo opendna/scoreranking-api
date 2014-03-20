@@ -22,9 +22,19 @@ ScorerankingApi::Application.routes.draw do
   match 'user_info', :to => 'user_infos#save', :via => :put
 
   #
+  # ランキングAPI
+  #
+  match 'ranking/:app_id/:game_id/:rank_type/:offset/:limit', :to => 'rankings#ranking'
+  match 'ranking', :to => 'rankings#ranking'
+
+  match 'my_ranking/:app_id/:user_id', :to => 'rankings#my_ranking'
+  match 'my_ranking', :to => 'rankings#my_ranking'
+
+  #
   # for debug
   #
-  get 'score' => 'scores#index'
-  get 'user_info' => 'user_infos#index'
+  #get 'debug' => 'scores#index'
+  #get 'debug' => 'user_infos#index'
+  get 'debug' => 'rankings#index'
 
 end
