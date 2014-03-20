@@ -1,11 +1,11 @@
 #encoding: utf-8
 require 'cache'
+include Cache
 
 #
 # ランキング
 #
 class Ranking
-  include Cache
 
   # バージョン管理
   CURRENT_VERSION_CACHE_KEY = "current_version"
@@ -18,14 +18,14 @@ class Ranking
   #
   def self.get_ranking(app_id, game_id, rank_type, no)
     # ランキングデータ
-    ranking_data_key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, ranking_current_version(), no);
-    ranking_data = find_from_cache(ranking_data_key)
+    ranking_data_key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version(), no);
+    ranking_data = Cache.find(ranking_data_key)
     
     if (ranking_data)
       # ユーザ情報をマージ
       user_id = ranking_data['user_id']
       userinfo_key = sprintf(USERINFO_CACHE_KEY_FORMAT, app_id, user_id)
-      userinfo = find_from_cache(userinfo_key)
+      userinfo = Cache.find(userinfo_key)
       if (userinfo) 
         ranking_data.merge userinfo
       end
@@ -41,20 +41,20 @@ class Ranking
   #
   def self.get_myranking(app_id, user_id)
     # ランキングデータ
-    ranking_data_key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, ranking_current_version(), user_id);
-    return find_from_cache(ranking_data_key)
+    ranking_data_key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, current_version(), user_id);
+    return Cache.find(ranking_data_key)
   end
 
   #
   # 現在のバージョンを取得
   #
-  def self.ranking_current_version
-    current_version = find_from_cache(CURRENT_VERSION_CACHE_KEY)
+  def self.current_version
+    current_version = Cache.find(CURRENT_VERSION_CACHE_KEY)
 
     unless current_version
       # バージョンがない場合は初期化 version=1
       current_version = 1
-      save_to_cache(CURRENT_VERSION_CACHE_KEY, current_version)
+      Cache.save(CURRENT_VERSION_CACHE_KEY, current_version)
     end
 
     return current_version

@@ -6,7 +6,7 @@ module Cache
   #
   #
   #
-  def find_from_cache(key)
+  def find(key)
     client = Dalli::Client.new;
     client.get(key)
   end
@@ -14,7 +14,7 @@ module Cache
   #
   #
   #
-  def save_to_cache(key, value)
+  def save(key, value)
     client = Dalli::Client.new;
     client.set(key, value)
   end
@@ -22,8 +22,13 @@ module Cache
   #
   #
   #
-  def append_to_cache(key, value)
+  def append(key, value)
     client = Dalli::Client.new;
     client.append(key, value)
+  end
+  
+  def increment(key)
+    client = Dalli::Client.new;
+    client.increment(key)
   end
 end

@@ -15,7 +15,7 @@ class UserInfosController < ApplicationController
 
     UserInfo.
     create_table(app_id)
-    _save(app_id, user_id, data)
+    UserInfo.save(app_id, user_id, data)
   
     render :json => {'result'=>RESULT_OK}
   end

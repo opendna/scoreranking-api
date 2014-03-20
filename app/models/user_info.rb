@@ -1,11 +1,11 @@
 #encoding: utf-8
 require 'cache'
+include Cache
 
 #
 # ユーザ情報
 #
 class UserInfo
-  include Cache
 
   TABLE_NAME_FORMAT = "userinfo_%d"     # userinfo_[app_id]
   CACHE_KEY_FORMAT  = "userinfo_%d_%d"  # userinfo_[app_id]_[user_id]
@@ -37,7 +37,7 @@ class UserInfo
   
     # cacheを更新する
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    save_to_cache(key, data)
+    Cache.save(key, data)
   end
 
 end

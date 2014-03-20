@@ -1,11 +1,11 @@
 #encoding: utf-8
 require 'cache'
+include Cache
 
 #
 # スコア
 #
 class Score
-  #include Cache
 
   TABLE_NAME_FORMAT = "score_%d_%d" # userinfo_[app_id]_[game_id]
   CACHE_KEY_FORMAT  = "score_%d_%d" # userinfo_[app_id]_[game_id]_[user_id]
@@ -23,14 +23,14 @@ class Score
       sql =<<-EOS
         create table #{table_name} (
           user_id integer not null,
-          score integer not null,
+          score float not null,
           inserted_at timestamp default current_timestamp()
         );
       EOS
       ActiveRecord::Base.connection.execute sql
       
       # キャッシュにテーブル名を追加
-      Cache::append_to_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), "#{table_name}#{TABLENAMELIST_DELEMITER}")
+      Cache.append(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), "#{table_name}#{TABLENAMELIST_DELEMITER}")
     end
   end
   
@@ -61,8 +61,19 @@ class Score
   #
   #
   #
+  def self.get_tablename_list(app_id)
+    return Cache.find(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id))
+  end
+
+  def self.get_tablename_list_array(app_id)
+    get_tablename_list(app_id).split(TABLENAMELIST_DELEMITER)
+  end
+  
+  #
+  #
+  #
   def self.exist_table?(app_id, name)
-    tablename_list = Cache::find_from_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id))
+    tablename_list = get_tablename_list(app_id)
 
     unless tablename_list
       # 無い場合は作成する
@@ -88,7 +99,7 @@ class Score
       tablename_list += "#{tableinfo['table_name']}#{TABLENAMELIST_DELEMITER}"
     end
 
-    Cache::save_to_cache(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), tablename_list)
+    Cache.save(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), tablename_list)
     return tablename_list
   end
 end
