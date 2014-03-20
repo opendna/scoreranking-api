@@ -1,5 +1,7 @@
 #encoding: utf-8
+
 class UserInfosController < ApplicationController
+include Cache
 
 TABLE_NAME_FORMAT = "userinfo_%d"   # userinfo_[app_id]
 CACHE_KEY_FORMAT = "userinfo_%d_%d" # userinfo_[app_id]]_[user_id]
@@ -46,6 +48,10 @@ def save(app_id, user_id, data)
     update data = '#{data}';
   EOS
   ActiveRecord::Base.connection.execute sql
+  
+  # cacheを更新する
+  key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
+  save_to_cache(key, data)
 end
 
 end

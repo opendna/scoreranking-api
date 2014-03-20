@@ -1,12 +1,12 @@
 #encoding: utf-8
 require 'dalli'
 
-module CacheUtil
-  
+module Cache
+
 #
 #
 #
-def find(key)
+def find_from_cache(key)
   client = Dalli::Client.new;
   client.get(key)
 end
@@ -14,9 +14,9 @@ end
 #
 #
 #
-def save(key, value)
+def save_to_cache(key, value)
   client = Dalli::Client.new;
-  client.put(key, data)
+  client.set(key, value)
 end
 
 end
