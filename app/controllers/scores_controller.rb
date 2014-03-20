@@ -1,10 +1,6 @@
 #encoding: utf-8
 
 class ScoresController < ApplicationController
-  include Cache
-
-  TABLE_NAME_FORMAT = "score_%d_%d" # userinfo_[app_id]_[game_id]
-  CACHE_KEY_FORMAT  = "score_%d_%d" # userinfo_[app_id]_[game_id]_[user_id]
 
   #
   #
@@ -69,7 +65,7 @@ class ScoresController < ApplicationController
   def create_table(app_id, game_id)
     #　TODO テーブルあるか？チェック、無ければCreate
 
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id)
+    table_name = sprintf(SCORE_TABLE_NAME_FORMAT, app_id, game_id)
     sql =<<-EOS
       create table if not exists #{table_name} (
         user_id integer not null,
@@ -84,7 +80,7 @@ class ScoresController < ApplicationController
   #
   #
   def _save(app_id, game_id, user_id, score)
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id);
+    table_name = sprintf(SCORE_TABLE_NAME_FORMAT, app_id, game_id);
     sql =<<-EOS
       insert into #{table_name}(user_id, score) values(#{user_id}, #{score});
     EOS
@@ -97,7 +93,7 @@ class ScoresController < ApplicationController
   def _delete(app_id, game_id, user_id)
     #　TODO テーブルがなければ無視
 
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id);
+    table_name = sprintf(SCORE_TABLE_NAME_FORMAT, app_id, game_id);
     sql =<<-EOS
       delete from #{table_name} where user_id = #{user_id};
     EOS
