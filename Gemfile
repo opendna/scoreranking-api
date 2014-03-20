@@ -9,9 +9,12 @@ gem 'mysql2'
 
 # for Scoreranking api
 
-# memcached
+# for memcached
 # https://github.com/mperham/dalli
 gem 'dalli'
+
+# for batch
+gem 'whenever', :require => false
 
 # Gems used only for assets and not required
 # in production environments by default.
