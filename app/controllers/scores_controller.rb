@@ -73,7 +73,8 @@ class ScoresController < ApplicationController
     sql =<<-EOS
       create table if not exists #{table_name} (
         user_id integer not null,
-        score integer not null
+        score integer not null,
+        inserted_at timestamp default current_timestamp()
       );
     EOS
     ActiveRecord::Base.connection.execute sql
