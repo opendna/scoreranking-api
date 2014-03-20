@@ -15,18 +15,18 @@ class RankingsController < ApplicationController
     offset = params[:offset].to_i
     limit = params[:limit].to_i
     
-    ranking = {}
+    rankings = {}
     limit.times do
-      ranking.merge Ranking.get_ranking(app_id, game_id, rank_type, offset)
+      rankings.merge!(Ranking.get_ranking(app_id, game_id, rank_type, offset))
       offset += 1
     end
 
     api_result = {'result'=>RESULT_OK}
-    api_result.merge(ranking) if ranking
+    api_result.merge!(rankings) if rankings
 
     render :json => api_result
   end
-  
+
   #
   # マイランキング取得
   # GET /my_ranking
@@ -36,8 +36,7 @@ class RankingsController < ApplicationController
 
     myranking = Ranking.get_myranking(app_id, user_id)
 
-    api_result = {'result'=>RESULT_OK}
-    api_result.merge(myranking) if myranking
+    api_result = {'result'=>RESULT_OK, 'myranking'=>myranking}
   
     render :json => api_result
   end

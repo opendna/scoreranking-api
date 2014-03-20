@@ -1,7 +1,7 @@
 ScorerankingApi::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
-  config.cache_store = :dalli_store, 'localhost:11211', { :expires_in => 1, :compress => true }
+  config.cache_store = :dalli_store, 'localhost:11211', { :expires_in => 1, :compress => false }
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development

@@ -67,7 +67,10 @@ class Score
 
   def self.get_tablename_list_array(app_id)
     tablename_list = get_tablename_list(app_id)
-    tablename_list.split(TABLENAMELIST_DELEMITER) if tablename_list
+    if tablename_list
+      return tablename_list.split(TABLENAMELIST_DELEMITER)
+    end
+    return []
   end
   
   #

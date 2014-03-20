@@ -40,4 +40,23 @@ class UserInfo
     Cache.save(key, data)
   end
 
+  #
+  #
+  #
+  def self.find(app_id, user_id)
+    key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
+    userinfo = Cache.find(key)
+    return userinfo if (userinfo)
+    
+    # cacheに見つからない場合はDBからSELECTして
+    table_name = sprintf(TABLE_NAME_FORMAT, app_id);
+    sql =<<-EOS
+      select data from #{table_name} where user_id = #{user_id}
+    EOS
+    userinfo = ActiveRecord::Base.connection.select_one sql
+    unless (userinfo.nil?)
+      # cacheに入れておく
+      Cache.save(key, userinfo['data'])
+    end
+  end
 end
