@@ -1,0 +1,38 @@
+<h2>Debug PUT /score</h2>
+<%= form_tag('/score', :method => :put) do %>
+<input type="text" name="app_id" value="1">
+<input type="text" name="game_id" value="1">
+<input type="text" name="user_id" value="1">
+<input type="text" name="score" value="78.5">
+<input type="submit">
+<% end %>
+
+<h2>Debug PUT /scores</h2>
+<%= form_tag('/scores', :method => :put) do %>
+<input type="text" name="app_id" value="1">
+<input type="text" name="datas[0][game_id]" value="1">
+<input type="text" name="datas[0][user_id]" value="1">
+<input type="text" name="datas[0][score]" value="78.5">
+<input type="text" name="datas[1][game_id]" value="1">
+<input type="text" name="datas[1][user_id]" value="2">
+<input type="text" name="datas[1][score]" value="40">
+<input type="submit">
+<% end %>
+
+<h2>Debug DELETE /score</h2>
+<%= form_tag('/score', :method => :delete) do %>
+<input type="text" name="app_id" value="1">
+<input type="text" name="game_id" value="1">
+<input type="text" name="user_id" value="1">
+<input type="submit">
+<% end %>
+
+<h2>Debug DELETE /scores</h2>
+<%= form_tag('/scores', :method => :delete) do %>
+<input type="text" name="app_id" value="1">
+<input type="text" name="datas[0][game_id]" value="1">
+<input type="text" name="datas[0][user_id]" value="1">
+<input type="text" name="datas[1][game_id]" value="1">
+<input type="text" name="datas[1][user_id]" value="2">
+<input type="submit">
+<% end %>
