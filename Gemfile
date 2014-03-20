@@ -7,6 +7,11 @@ gem 'rails', '3.2.16'
 
 gem 'mysql2'
 
+# for Scoreranking api
+
+# memcached
+# https://github.com/mperham/dalli
+gem 'dalli'
 
 # Gems used only for assets and not required
 # in production environments by default.
