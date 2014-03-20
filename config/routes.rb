@@ -35,6 +35,6 @@ ScorerankingApi::Application.routes.draw do
   #
   #get 'debug' => 'scores#index'
   #get 'debug' => 'user_infos#index'
-  get 'debug' => 'rankings#index'
+  #get 'debug' => 'rankings#index'
 
 end
