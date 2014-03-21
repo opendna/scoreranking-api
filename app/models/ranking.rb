@@ -66,15 +66,10 @@ class Ranking
   # 現在のバージョンを取得
   #
   def self.current_version(app_id)
-    current_version = Rails.cache.read(sprintf(CURRENT_VERSION_CACHE_KEY, app_id))
-
-    unless current_version
+    current_version = Rails.cache.fetch(sprintf(CURRENT_VERSION_CACHE_KEY, app_id)) do
       # バージョンがない場合は初期化 version=0
       current_version = 0
-      Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), current_version)
     end
-
-    return current_version
   end
   
   #
