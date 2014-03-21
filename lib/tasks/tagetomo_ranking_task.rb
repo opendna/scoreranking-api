@@ -3,9 +3,9 @@ include Cache
 
 #
 # ランキング生成バッチ
-#　bundle exec rails runner "Tasks::CreateRankingTask.execute app_id:1"
-#　bundle exec rails runner "Tasks::CreateRankingTask.reset_status"
-class Tasks::CreateRankingTask
+#　bundle exec rails runner "Tasks::TagetomoRankingTask.execute app_id:1"
+#　bundle exec rails runner "Tasks::TagetomoRankingTask.reset_status"
+class Tasks::TagetomoRankingTask
   WORKING_STATUS_CACHE_KEY = "ranking_task"
 
   def self.execute(params)
