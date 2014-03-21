@@ -23,7 +23,7 @@ module Cache
   #
   def append(key, value)
     client = Dalli::Client.new;
-    
+
     tmp = get(key)
     if (tmp) 
       # 値が無い場合はset
@@ -31,7 +31,7 @@ module Cache
     else
       # すでに値が登録されている場合は、値を更新
       tmp += value
-      client.replace(key, value)
+      set(key, value)
     end
   end
   

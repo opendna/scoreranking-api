@@ -19,7 +19,7 @@ class Ranking
   #
   def self.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, version, no);
-    Cache.save(key, "#{rank},#{user_id},#{score}")
+    Cache.set(key, "#{rank},#{user_id},#{score}")
   end
 
   #

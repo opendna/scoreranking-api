@@ -99,7 +99,7 @@ class Tasks::TagetomoRankingTask
   # 多重起動防止
   #
   def self.duplicate_execution
-    if Cache.set(WORKING_STATUS_CACHE_KEY)
+    if Cache.get(WORKING_STATUS_CACHE_KEY)
       Rails.logger.error "多重起動発生のため、バッチタスクを終了"
       Rails.logger.error "Tasks::CreateRankingTask END with duplicate execution error."
       return true
