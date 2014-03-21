@@ -9,18 +9,18 @@ class RankingsController < ApplicationController
   # ランキング取得
   # GET /ranking
   def ranking
-    app_id = params[:app_id]
-    game_id = params[:game_id]
-    rank_type = params[:rank_type]
-    offset = params[:offset].to_i
-    limit = params[:limit].to_i
+    condition = RankingParameter.new({:app_id => params[:app_id],
+      :game_id => params[:game_id], :rank_type => params[:rank_type],
+      :offset => params[:offset], :limit => params[:limit]})
     
-    rankings = Ranking.get_ranking(app_id, game_id, rank_type, offset)
-
-    api_result = {'result'=>RESULT_OK}
-    api_result.merge!(rankings) if rankings
-
-    render :json => api_result
+    if condition.valid?
+      rankings = Ranking.get_ranking(condition)
+      api_result = {'result'=>RESULT_OK}
+      api_result.merge!(rankings) if rankings
+      render :json => api_result
+    else
+      render :json => {'result'=>RESULT_NG}
+    end
   end
 
   #

@@ -1,7 +1,7 @@
 #encoding: utf-8
 
 #
-# ランキング／マイランキング
+# ランキング
 #
 class Ranking
 
@@ -9,7 +9,6 @@ class Ranking
   CURRENT_VERSION_CACHE_KEY = "current_version_%d"
     
   RANKING_CACHE_KEY_FORMAT = "rank_%d_%d_%d_%d_%d" # rank_[app_id]_[game_id]_[rank_type]_[version]_[no]
-  MYRANKING_CACHE_KEY_FORMAT = "myrank_%d_%d_%d" # myrank_[app_id]_[version]_[user_id]
   DATA_DELEMITER = "|"
 
   #
@@ -24,49 +23,29 @@ class Ranking
   #
   # ランキング取得
   #
-  def self.get_ranking(app_id, game_id, rank_type, no, limit, offset)
+  def self.get_ranking(condition)
     rankings = {}
-    current_version = current_version()
-    
-    limit.times do
-      key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version, no);
+    version = current_version(condition.app_id)
+
+    loop_count = condition.limit.to_i
+    number = condition.offset.to_i
+
+    loop_count.times do
+      key = sprintf(RANKING_CACHE_KEY_FORMAT, condition.app_id, condition.game_id, condition.rank_type, version, number);
       ranking_data = Rails.cache.read(key)
 
       if (ranking_data)
         # ユーザ情報をマージ
         user_id = ranking_data.split(',')[1].to_i
-        userinfo = UserInfo.find(app_id, user_id)
+        userinfo = UserInfo.find(condition.app_id, user_id)
         if (userinfo) 
           ranking_data = "#{ranking_data}#{DATA_DELEMITER}#{userinfo}"
         end
-        rankings.merge!({no => ranking_data})
-      else
-        rankings.merge!({no => {}})
+        rankings.merge!({number => ranking_data})
       end
-      offset += 1
+      number += 1
     end
     rankings
-  end
-
-  #
-  # マイランキングデータ追加
-  #
-  def self.insert_myranking(app_id, version, user_id, game_id, rank, score)
-    key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, version, user_id);
-    Rails.logger.debug "insert_myranking:#{key}"
-    
-    value = Rails.cache.fetch(key) do
-      Rails.cache.write(key, "#{value}#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
-    end
-    
-  end
-
-  #
-  # マイランキングデータ取得
-  #
-  def self.get_myranking(app_id, user_id)
-    key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, current_version(), user_id);
-    return Rails.cache.read(key)
   end
 
   #
