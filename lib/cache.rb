@@ -25,14 +25,14 @@ module Cache
     client = Dalli::Client.new;
     
     tmp = get(key)
-    if (tmp) {
-      　# 値が無い場合はset
+    if (tmp) 
+      # 値が無い場合はset
       set(key, value)
-    } else {
+    else
       # すでに値が登録されている場合は、値を更新
       tmp += value
       client.replace(key, value)
-    }
+    end
   end
   
   #
