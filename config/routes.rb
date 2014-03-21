@@ -18,7 +18,7 @@ ScorerankingApi::Application.routes.draw do
   #
   # ユーザ情報API
   #
-  match 'user_info/:app_id/:user_id/:data', :to => 'user_infos#save', :via => :put
+  match 'user_info/:app_id/:user_id/:user_data', :to => 'user_infos#save', :via => :put
   match 'user_info', :to => 'user_infos#save', :via => :put
 
   #
@@ -34,7 +34,7 @@ ScorerankingApi::Application.routes.draw do
   # for debug
   #
   # get 'debug' => 'scores#index'
-  # get 'debug' => 'user_infos#index'
+  get 'debug' => 'user_infos#index'
   # get 'debug' => 'rankings#index'
 
   match "*any", :to => "application#page_not_found"

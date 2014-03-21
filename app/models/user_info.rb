@@ -4,21 +4,38 @@
 # ユーザ情報
 #
 class UserInfo
+  include ActiveModel::Validations
+  include ActiveModel::Conversion
+  extend ActiveModel::Naming
+
+  attr_accessor :app_id, :user_id, :user_data
+  
+  validates_presence_of :app_id, :user_id, :user_data
+  validates :app_id, :numericality => :only_integer
+  validates :user_id, :numericality => :only_integer
+  validates_length_of :user_data, maximum:512
 
   TABLE_NAME_FORMAT = "userinfo_%d"     # userinfo_[app_id]
   CACHE_KEY_FORMAT  = "userinfo_%d_%d"  # userinfo_[app_id]_[user_id]
 
+  def initialize(attributes = {})
+    attributes.each do |name, value|
+      send("#{name}=", value)
+    end
+  end
+  def persisted?
+    false
+  end
+
   #
   # テーブルを作成する
   #
-  def self.create_table(app_id)
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id);
-    
+  def create_table_if_need(table_name)
     Rails.cache.fetch("exists_score_table__" + table_name) do
       sql =<<-EOS
         create table if not exists #{table_name} (
           user_id integer not null primary key,
-          data text
+          user_data text
         );
       EOS
       ActiveRecord::Base.connection.execute sql
@@ -29,17 +46,19 @@ class UserInfo
   #
   # ユーザ情報を登録する
   #
-  def self.save(app_id, user_id, data)
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id);
+  def save
+    table_name = sprintf(TABLE_NAME_FORMAT, app_id)
+    create_table_if_need table_name
+
     sql =<<-EOS
-      insert into #{table_name}(user_id, data) values(#{user_id}, '#{data}') on duplicate key
-      update data = '#{data}';
+      insert into #{table_name}(user_id, user_data) values(#{self.user_id}, '#{self.user_data}') on duplicate key
+      update user_data = '#{self.user_data}';
     EOS
     ActiveRecord::Base.connection.execute sql
   
     # cacheを更新する
-    key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    Rails.cache.write(key, data)
+    key = sprintf(CACHE_KEY_FORMAT, self.app_id, self.user_id)
+    Rails.cache.write(key, self.user_data)
   end
 
   #
@@ -49,16 +68,11 @@ class UserInfo
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
     
     userinfo = Rails.cache.fetch(key) do
-      # cacheに見つからない場合はDBからSELECTして
       table_name = sprintf(TABLE_NAME_FORMAT, app_id);
       sql =<<-EOS
-        select data from #{table_name} where user_id = #{user_id}
+        select user_data from #{table_name} where user_id = #{user_id}
       EOS
       userinfo = ActiveRecord::Base.connection.select_one sql
-      unless (userinfo.nil?)
-        # cacheに入れておく
-        Rails.cache.write(key, userinfo['data'])
-      end
     end
     userinfo
   end
