@@ -13,9 +13,8 @@ class Score
   #
   def self.create_table(app_id, game_id)
     table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id)
-    key = "exists_score_table__" + table_name
 
-    unless Rails.cache.read(key)
+    Rails.cache.fetch("exists_score_table__" + table_name) do
       sql =<<-EOS
         create table if not exists #{table_name} (
           user_id integer not null,
@@ -24,7 +23,7 @@ class Score
         );
       EOS
       ActiveRecord::Base.connection.execute sql
-      Rails.cache.write(key, true)
+      true
     end
   end
   
