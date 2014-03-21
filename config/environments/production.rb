@@ -40,7 +40,14 @@ ScorerankingApi::Application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production
-  config.cache_store = :dalli_store
+  # Global enable/disable all memcached usage
+  config.perform_caching = true
+  # Disable/enable fragment and page caching in ActionController
+  config.action_controller.perform_caching = true
+  # The underlying cache store to use.
+  config.cache_store = :dalli_store, 'localhost:11211'
+  # The session store is completely different from the normal data cache
+  # config.session_store = :dalli_store, 'localhost:11211'
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"

@@ -8,7 +8,7 @@ ScorerankingApi::Application.configure do
   # The underlying cache store to use.
   config.cache_store = :dalli_store, 'localhost:11211'
   # The session store is completely different from the normal data cache
-  config.session_store = :dalli_store, 'localhost:11211'
+  # config.session_store = :dalli_store, 'localhost:11211'
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
