@@ -9,11 +9,13 @@ class ApplicationController < ActionController::Base
   RESULT_NG = 9
   
   def page_not_found
+    Rails.logger.error "page_not_found"
     render :json => {'result'=>RESULT_NG}
   end
   
   private
   def handle_exception(exception)
+    Rails.logger.error exception
     render :json => {'result'=>RESULT_NG}
   end
 end
