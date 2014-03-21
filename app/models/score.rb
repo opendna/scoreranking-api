@@ -43,12 +43,10 @@ class Score
   #
   def self.delete(app_id, game_id, user_id)
     table_name = sprintf(TABLE_NAME_FORMAT, app_id, game_id);
-    if exist_table?(app_id, table_name)
-      sql =<<-EOS
-        delete from #{table_name} where user_id = #{user_id};
-      EOS
-      ActiveRecord::Base.connection.execute sql
-    end
+    sql =<<-EOS
+      delete from #{table_name} where user_id = #{user_id};
+    EOS
+    ActiveRecord::Base.connection.execute sql
   end
 
   #
