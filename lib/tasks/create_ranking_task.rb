@@ -10,16 +10,21 @@ class Tasks::CreateRankingTask
   def self.execute(params)
     app_id = params[:app_id]
 
-    return if duplicate_execution(app_id)
+    if Rails.cache.read(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
+      loge "多重起動発生のため、バッチタスクを終了"
+      loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
+      return
+    end
 
-    start_task(app_id)
+    logd "Tasks::CreateRankingTask START, app_id:#{app_id}"
+    Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
 
     next_version = Ranking.current_version(app_id) + 1
     create_rankings(app_id, next_version)
-    
     Ranking.update_version(app_id, next_version)
 
-    end_task(app_id)
+    logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
+    Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
   end
   
   #
@@ -77,35 +82,7 @@ class Tasks::CreateRankingTask
 
     logd "version:#{version} ランキング生成完了"
   end
-
-  #
-  # タスク実行開始
-  #
-  def self.start_task(app_id)
-    logd "Tasks::CreateRankingTask START, app_id:#{app_id}"
-    Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
-  end
   
-  #
-  # タスク実行終了
-  #
-  def self.end_task(app_id)
-    logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
-    Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
-  end
-
-  #
-  # 起動チェック
-  #
-  def self.duplicate_execution(app_id)
-    if Rails.cache.read(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
-      loge "多重起動発生のため、バッチタスクを終了"
-      loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
-      return true
-    end
-    return false
-  end
-
   #
   # 実行中フラグをリセットする
   #
