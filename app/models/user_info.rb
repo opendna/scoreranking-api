@@ -1,6 +1,4 @@
 #encoding: utf-8
-require 'cache'
-include Cache
 
 #
 # ユーザ情報
@@ -37,7 +35,7 @@ class UserInfo
   
     # cacheを更新する
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    Cache.set(key, data)
+    Rails.cache.write(key, data)
   end
 
   #
@@ -45,7 +43,7 @@ class UserInfo
   #
   def self.find(app_id, user_id)
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    userinfo = Cache.get(key)
+    userinfo = Rails.cache.read(key)
     return userinfo if (userinfo)
     
     # cacheに見つからない場合はDBからSELECTして
@@ -56,7 +54,7 @@ class UserInfo
     userinfo = ActiveRecord::Base.connection.select_one sql
     unless (userinfo.nil?)
       # cacheに入れておく
-      Cache.set(key, userinfo['data'])
+      Rails.cache.write(key, userinfo['data'])
     end
   end
 end

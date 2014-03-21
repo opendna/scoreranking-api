@@ -1,6 +1,4 @@
 #encoding: utf-8
-require 'cache'
-include Cache
 
 #
 # ランキング／マイランキング
@@ -20,7 +18,7 @@ class Ranking
   def self.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, version, no);
     Rails.logger.debug "insert_ranking:#{key}"
-    Cache.set(key, "#{rank},#{user_id},#{score}")
+    Rails.cache.write(key, "#{rank},#{user_id},#{score}")
   end
 
   #
@@ -28,7 +26,7 @@ class Ranking
   #
   def self.get_ranking(app_id, game_id, rank_type, no)
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version(), no);
-    ranking_data = Cache.get(key)
+    ranking_data = Rails.cache.read(key)
 
     if (ranking_data)
       # ユーザ情報をマージ
@@ -49,7 +47,11 @@ class Ranking
   def self.insert_myranking(app_id, version, user_id, game_id, rank, score)
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, version, user_id);
     Rails.logger.debug "insert_myranking:#{key}"
-    Cache.append(key, "#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
+    
+    value = Rails.cache.fetch(key) do
+      Rails.cache.write(key, "#{value}#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
+    end
+    
   end
 
   #
@@ -57,19 +59,19 @@ class Ranking
   #
   def self.get_myranking(app_id, user_id)
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, current_version(), user_id);
-    return Cache.get(key)
+    return Rails.cache.read(key)
   end
 
   #
   # 現在のバージョンを取得
   #
   def self.current_version
-    current_version = Cache.get(CURRENT_VERSION_CACHE_KEY)
+    current_version = Rails.cache.read(CURRENT_VERSION_CACHE_KEY)
 
     unless current_version
       # バージョンがない場合は初期化 version=0
       current_version = 0
-      Cache.set(CURRENT_VERSION_CACHE_KEY, current_version)
+      Rails.cache.write(CURRENT_VERSION_CACHE_KEY, current_version)
     end
 
     return current_version
@@ -79,6 +81,6 @@ class Ranking
   # ランキングバージョンを更新
   #
   def self.update_version
-    Cache.incr(CURRENT_VERSION_CACHE_KEY)
+    Rails.cache.increment(CURRENT_VERSION_CACHE_KEY)
   end
 end

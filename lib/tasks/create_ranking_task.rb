@@ -1,25 +1,25 @@
 #encoding: utf-8
-include Cache
 
 #
 # ランキング生成バッチ
 #　bundle exec rails runner "Tasks::CreateRankingTask.execute app_id:1"
-#　bundle exec rails runner "Tasks::CreateRankingTask.reset_status"
+#　bundle exec rails runner "Tasks::CreateRankingTask.reset_status app_id:1"
 class Tasks::CreateRankingTask
-  WORKING_STATUS_CACHE_KEY = "ranking_task"
+  WORKING_STATUS_CACHE_KEY = "ranking_task_%d"
 
   def self.execute(params)
-    return if duplicate_execution
-
-    start_task params
-
     app_id = params[:app_id]
+
+    return if duplicate_execution(app_id)
+
+    start_task(app_id)
+
     next_version = Ranking.current_version.to_i + 1
     create_rankings(app_id, next_version)
     
     Ranking.update_version
 
-    end_task
+    end_task(app_id)
   end
   
   #
@@ -28,13 +28,15 @@ class Tasks::CreateRankingTask
   def self.create_rankings(app_id, version)
     logd "version:#{version} ランキング生成開始"
 
-    tablename_list = Score.get_tablename_list_array(app_id)
+    tablename_list = Score.get_tablename_list(app_id)
     return if tablename_list.nil?
 
     logd "score_tables => #{tablename_list}"
 
     rank_type = 1
-    tablename_list.each do |table_name|
+    tablename_list.each do |table|
+      table_name = table['table_name']
+      
       sql =<<-EOS
         select
           user_id,
@@ -79,26 +81,26 @@ class Tasks::CreateRankingTask
   #
   # タスク実行開始
   #
-  def self.start_task(params)
-    logd "Tasks::CreateRankingTask start, params:#{params}"
-    Cache.set(WORKING_STATUS_CACHE_KEY, "working!")
+  def self.start_task(app_id)
+    logd "Tasks::CreateRankingTask START, app_id:#{app_id}"
+    Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
   end
   
   #
   # タスク実行終了
   #
-  def self.end_task
-    logd "Tasks::CreateRankingTask END"
-    Cache.delete(WORKING_STATUS_CACHE_KEY)
+  def self.end_task(app_id)
+    logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
+    Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
   end
 
   #
   # 起動チェック
   #
-  def self.duplicate_execution
-    if Cache.get(WORKING_STATUS_CACHE_KEY)
+  def self.duplicate_execution(app_id)
+    if Rails.cache.read(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
       loge "多重起動発生のため、バッチタスクを終了"
-      loge "Tasks::CreateRankingTask END with duplicate execution error."
+      loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
       return true
     end
     return false
@@ -107,8 +109,9 @@ class Tasks::CreateRankingTask
   #
   # 実行中フラグをリセットする
   #
-  def self.reset_status
-    Cache.delete(WORKING_STATUS_CACHE_KEY)
+  def self.reset_status(params)
+    app_id = params[:app_id]
+    Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
   end
 
   #

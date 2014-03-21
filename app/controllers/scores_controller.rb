@@ -15,7 +15,7 @@ class ScoresController < ApplicationController
     score = params[:score]
     
     Score.create_table(app_id, game_id)
-    Score.save(app_id, game_id, user_id, score)
+    Score.insert(app_id, game_id, user_id, score)
   
     render :json => {'result'=>RESULT_OK}
   end
@@ -29,7 +29,7 @@ class ScoresController < ApplicationController
 
     datas.map do |key, data|
       Score.create_table(app_id, data['game_id'])
-      Score.save(app_id, data['game_id'], data['user_id'], data['score'])
+      Score.insert(app_id, data['game_id'], data['user_id'], data['score'])
     end
 
     render :json => {'result'=>RESULT_OK}
