@@ -13,13 +13,17 @@ class UserInfo
   #
   def self.create_table(app_id)
     table_name = sprintf(TABLE_NAME_FORMAT, app_id);
-    sql =<<-EOS
-      create table if not exists #{table_name} (
-        user_id integer not null primary key,
-        data text
-      );
-    EOS
-    ActiveRecord::Base.connection.execute sql
+    
+    Rails.cache.fetch("exists_score_table__" + table_name) do
+      sql =<<-EOS
+        create table if not exists #{table_name} (
+          user_id integer not null primary key,
+          data text
+        );
+      EOS
+      ActiveRecord::Base.connection.execute sql
+      true
+    end
   end
 
   #
