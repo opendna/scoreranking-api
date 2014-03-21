@@ -6,7 +6,7 @@
 class ScoresController < ApplicationController
 
   #
-  #
+  # スコア記録
   # PUT /score
   def save
     app_id = params[:app_id]
@@ -21,7 +21,7 @@ class ScoresController < ApplicationController
   end
 
   #
-  #
+  # スコア記録
   # PUT /scores
   def bulk_save
     app_id = params[:app_id]
@@ -36,7 +36,7 @@ class ScoresController < ApplicationController
   end
 
   #
-  #
+  # スコア削除
   # DELETE /score
   def delete
     app_id = params[:app_id]
@@ -49,7 +49,7 @@ class ScoresController < ApplicationController
   end
 
   #
-  #
+  # スコア削除
   # DELETE /scores
   def bulk_delete
     app_id = params[:app_id]
