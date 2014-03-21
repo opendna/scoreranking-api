@@ -37,4 +37,5 @@ ScorerankingApi::Application.routes.draw do
   # get 'debug' => 'user_infos#index'
   # get 'debug' => 'rankings#index'
 
+  match "*any", :to => "application#page_not_found"
 end
