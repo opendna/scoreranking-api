@@ -43,22 +43,23 @@ class UserInfo
   end
 
   #
-  #
+  # ユーザ情報を検索する
   #
   def self.find(app_id, user_id)
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    userinfo = Rails.cache.read(key)
-    return userinfo if (userinfo)
     
-    # cacheに見つからない場合はDBからSELECTして
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id);
-    sql =<<-EOS
-      select data from #{table_name} where user_id = #{user_id}
-    EOS
-    userinfo = ActiveRecord::Base.connection.select_one sql
-    unless (userinfo.nil?)
-      # cacheに入れておく
-      Rails.cache.write(key, userinfo['data'])
+    userinfo = Rails.cache.fetch(key) do
+      # cacheに見つからない場合はDBからSELECTして
+      table_name = sprintf(TABLE_NAME_FORMAT, app_id);
+      sql =<<-EOS
+        select data from #{table_name} where user_id = #{user_id}
+      EOS
+      userinfo = ActiveRecord::Base.connection.select_one sql
+      unless (userinfo.nil?)
+        # cacheに入れておく
+        Rails.cache.write(key, userinfo['data'])
+      end
     end
+    userinfo
   end
 end
