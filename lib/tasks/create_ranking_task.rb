@@ -26,7 +26,7 @@ class Tasks::CreateRankingTask
     logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
     Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
   end
-  
+
   #
   # ランキングを生成する
   #
@@ -58,17 +58,15 @@ class Tasks::CreateRankingTask
       game_id = table_name.split('_')[1].to_i
       no = 1
       rank = 1
-      score = 0
+      prev_score = 0
       result.each do |rank_data|
-        # 上位とスコアを比較し、同順位とするか判定
-        if (1 < no)
-          if (rank_data['score'] < score)
-            rank = no
-          end
-        end
-
         user_id = rank_data['user_id']
         score = rank_data['score']
+
+        # 上位とスコアを比較し、同順位とするか判定
+        if (score < prev_score)
+          rank = no
+        end
 
         # ランキングを生成する
         Ranking.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
@@ -79,10 +77,9 @@ class Tasks::CreateRankingTask
         no += 1
       end
     end
-
     logd "version:#{version} ランキング生成完了"
   end
-  
+
   #
   # 実行中フラグをリセットする
   #
@@ -95,6 +92,7 @@ class Tasks::CreateRankingTask
   def self.logd(message)
     Rails.logger.debug message
   end
+
   #
   def self.loge(message)
     Rails.logger.error message
