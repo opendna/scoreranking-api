@@ -6,7 +6,7 @@
 class Ranking
 
   # バージョン管理
-  CURRENT_VERSION_CACHE_KEY = "current_version"
+  CURRENT_VERSION_CACHE_KEY = "current_version_%d"
     
   RANKING_CACHE_KEY_FORMAT = "rank_%d_%d_%d_%d_%d" # rank_[app_id]_[game_id]_[rank_type]_[version]_[no]
   MYRANKING_CACHE_KEY_FORMAT = "myrank_%d_%d_%d" # myrank_[app_id]_[version]_[user_id]
@@ -65,13 +65,13 @@ class Ranking
   #
   # 現在のバージョンを取得
   #
-  def self.current_version
-    current_version = Rails.cache.read(CURRENT_VERSION_CACHE_KEY)
+  def self.current_version(app_id)
+    current_version = Rails.cache.read(sprintf(CURRENT_VERSION_CACHE_KEY, app_id))
 
     unless current_version
       # バージョンがない場合は初期化 version=0
       current_version = 0
-      Rails.cache.write(CURRENT_VERSION_CACHE_KEY, current_version)
+      Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), current_version)
     end
 
     return current_version
@@ -80,7 +80,7 @@ class Ranking
   #
   # ランキングバージョンを更新
   #
-  def self.update_version
-    Rails.cache.increment(CURRENT_VERSION_CACHE_KEY)
+  def self.update_version(app_id, version)
+    Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), version)
   end
 end

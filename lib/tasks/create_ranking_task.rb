@@ -14,10 +14,10 @@ class Tasks::CreateRankingTask
 
     start_task(app_id)
 
-    next_version = Ranking.current_version.to_i + 1
+    next_version = Ranking.current_version(app_id) + 1
     create_rankings(app_id, next_version)
     
-    Ranking.update_version
+    Ranking.update_version(app_id, next_version)
 
     end_task(app_id)
   end
