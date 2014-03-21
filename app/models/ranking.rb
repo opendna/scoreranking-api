@@ -24,21 +24,28 @@ class Ranking
   #
   # ランキング取得
   #
-  def self.get_ranking(app_id, game_id, rank_type, no)
-    key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version(), no);
-    ranking_data = Rails.cache.read(key)
+  def self.get_ranking(app_id, game_id, rank_type, no, limit, offset)
+    rankings = {}
+    current_version = current_version()
+    
+    limit.times do
+      key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version, no);
+      ranking_data = Rails.cache.read(key)
 
-    if (ranking_data)
-      # ユーザ情報をマージ
-      user_id = ranking_data.split(',')[1].to_i
-      userinfo = UserInfo.find(app_id, user_id)
-      if (userinfo) 
-        ranking_data = "#{ranking_data}#{DATA_DELEMITER}#{userinfo}"
+      if (ranking_data)
+        # ユーザ情報をマージ
+        user_id = ranking_data.split(',')[1].to_i
+        userinfo = UserInfo.find(app_id, user_id)
+        if (userinfo) 
+          ranking_data = "#{ranking_data}#{DATA_DELEMITER}#{userinfo}"
+        end
+        rankings.merge!({no => ranking_data})
+      else
+        rankings.merge!({no => {}})
       end
-      return {no => ranking_data}
-    else
-      return {no => {}}
+      offset += 1
     end
+    rankings
   end
 
   #

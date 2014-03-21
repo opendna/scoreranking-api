@@ -15,11 +15,7 @@ class RankingsController < ApplicationController
     offset = params[:offset].to_i
     limit = params[:limit].to_i
     
-    rankings = {}
-    limit.times do
-      rankings.merge!(Ranking.get_ranking(app_id, game_id, rank_type, offset))
-      offset += 1
-    end
+    rankings = Ranking.get_ranking(app_id, game_id, rank_type, offset)
 
     api_result = {'result'=>RESULT_OK}
     api_result.merge!(rankings) if rankings
