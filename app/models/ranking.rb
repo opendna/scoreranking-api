@@ -3,7 +3,7 @@ require 'cache'
 include Cache
 
 #
-# ランキング
+# ランキング／マイランキング
 #
 class Ranking
 
@@ -19,14 +19,14 @@ class Ranking
   #
   def self.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, version, no);
+    Rails.logger.debug "insert_ranking:#{key}"
     Cache.set(key, "#{rank},#{user_id},#{score}")
   end
 
   #
-  #
+  # ランキング取得
   #
   def self.get_ranking(app_id, game_id, rank_type, no)
-    # ランキングデータ
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version(), no);
     ranking_data = Cache.get(key)
 
@@ -48,14 +48,14 @@ class Ranking
   #
   def self.insert_myranking(app_id, version, user_id, game_id, rank, score)
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, version, user_id);
+    Rails.logger.debug "insert_myranking:#{key}"
     Cache.append(key, "#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
   end
 
   #
-  #
+  # マイランキングデータ取得
   #
   def self.get_myranking(app_id, user_id)
-    # ランキングデータ
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, current_version(), user_id);
     return Cache.get(key)
   end
@@ -76,10 +76,9 @@ class Ranking
   end
   
   #
-  #
+  # ランキングバージョンを更新
   #
   def self.update_version
     Cache.incr(CURRENT_VERSION_CACHE_KEY)
   end
-  
 end

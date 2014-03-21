@@ -22,18 +22,16 @@ class Tasks::CreateRankingTask
     end_task
   end
   
-  def self.reset_status
-    Cache.delete(WORKING_STATUS_CACHE_KEY)
-  end
-
   #
   # ランキングを生成する
   #
   def self.create_rankings(app_id, version)
-    Rails.logger.debug "version:#{version} ランキング生成開始"
+    logd "version:#{version} ランキング生成開始"
 
     tablename_list = Score.get_tablename_list_array(app_id)
     return if tablename_list.nil?
+
+    logd "score_tables => #{tablename_list}"
 
     rank_type = 1
     tablename_list.each do |table_name|
@@ -47,7 +45,6 @@ class Tasks::CreateRankingTask
         order by score desc
         ;
       EOS
-      Rails.logger.debug sql
       
       result = ActiveRecord::Base.connection.select(sql)
 
@@ -76,34 +73,50 @@ class Tasks::CreateRankingTask
       end
     end
 
-    Rails.logger.debug "version:#{version} ランキング生成完了"
+    logd "version:#{version} ランキング生成完了"
   end
 
   #
-  #
+  # タスク実行開始
   #
   def self.start_task(params)
-    Rails.logger.debug "Tasks::CreateRankingTask start, params:#{params}"
+    logd "Tasks::CreateRankingTask start, params:#{params}"
     Cache.set(WORKING_STATUS_CACHE_KEY, "working!")
   end
   
   #
-  #
+  # タスク実行終了
   #
   def self.end_task
-    Rails.logger.debug "Tasks::CreateRankingTask END"
+    logd "Tasks::CreateRankingTask END"
     Cache.delete(WORKING_STATUS_CACHE_KEY)
   end
 
   #
-  # 多重起動防止
+  # 起動チェック
   #
   def self.duplicate_execution
     if Cache.get(WORKING_STATUS_CACHE_KEY)
-      Rails.logger.error "多重起動発生のため、バッチタスクを終了"
-      Rails.logger.error "Tasks::CreateRankingTask END with duplicate execution error."
+      loge "多重起動発生のため、バッチタスクを終了"
+      loge "Tasks::CreateRankingTask END with duplicate execution error."
       return true
     end
     return false
+  end
+
+  #
+  # 実行中フラグをリセットする
+  #
+  def self.reset_status
+    Cache.delete(WORKING_STATUS_CACHE_KEY)
+  end
+
+  #
+  def self.logd(message)
+    Rails.logger.debug message
+  end
+  #
+  def self.loge(message)
+    Rails.logger.error message
   end
 end

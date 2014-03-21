@@ -1,7 +1,14 @@
 ScorerankingApi::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
-  config.cache_store = :dalli_store, 'localhost:11211', { :expires_in => 1, :compress => false }
+  # Global enable/disable all memcached usage
+  config.perform_caching = true
+  # Disable/enable fragment and page caching in ActionController
+  config.action_controller.perform_caching = true
+  # The underlying cache store to use.
+  config.cache_store = :dalli_store, 'localhost:11211'
+  # The session store is completely different from the normal data cache
+  config.session_store = :dalli_store, 'localhost:11211'
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development

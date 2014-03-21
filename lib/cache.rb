@@ -4,56 +4,34 @@ require 'dalli'
 module Cache
 
   def get(key)
-    client = Dalli::Client.new;
-    client.get(key)
+    Rails.cache.read(key)
   end
 
   def set(key, value)
-    client = Dalli::Client.new;
-    client.set(key, value)
+    Rails.cache.write(key, value)
   end
 
   def delete(key)
-    client = Dalli::Client.new;
-    client.delete(key)
+    Rails.cache.delete(key)
   end
 
   #
   # 値を登録or更新する
   #
   def append(key, value)
-    client = Dalli::Client.new;
-
-    tmp = get(key)
+    tmp = Rails.cache.read(key)
     unless (tmp) 
       # 値が無い場合はset
-      set(key, value)
+      Rails.cache.write(key, value)
     else
       # すでに値が登録されている場合は、値を更新
-      tmp += value
-      set(key, value)
+      Rails.cache.write(key, "#{tmp}#{value}")
     end
   end
   
   #
   #
   def incr(key)
-    client = Dalli::Client.new;
-    client.incr(key)
+    Rails.cache.increment(key)
   end
-
-  #
-  #
-  def set_raw(key, value)
-    client = Dalli::Client.new;
-    client.set(key, value, 0, :raw => true)
-  end
-  
-  #
-  #
-  def get_raw(key)
-    client = Dalli::Client.new;
-    client.get(key, :raw => true)
-  end
-
 end
