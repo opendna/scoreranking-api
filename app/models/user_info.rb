@@ -37,7 +37,7 @@ class UserInfo
   
     # cacheを更新する
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    Cache.save(key, data)
+    Cache.set(key, data)
   end
 
   #
@@ -45,7 +45,7 @@ class UserInfo
   #
   def self.find(app_id, user_id)
     key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    userinfo = Cache.find(key)
+    userinfo = Cache.get(key)
     return userinfo if (userinfo)
     
     # cacheに見つからない場合はDBからSELECTして
@@ -56,7 +56,7 @@ class UserInfo
     userinfo = ActiveRecord::Base.connection.select_one sql
     unless (userinfo.nil?)
       # cacheに入れておく
-      Cache.save(key, userinfo['data'])
+      Cache.set(key, userinfo['data'])
     end
   end
 end

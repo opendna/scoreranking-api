@@ -19,7 +19,6 @@ class Ranking
   #
   def self.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, version, no);
-    p key
     Cache.save(key, "#{rank},#{user_id},#{score}")
   end
 
@@ -29,7 +28,7 @@ class Ranking
   def self.get_ranking(app_id, game_id, rank_type, no)
     # ランキングデータ
     key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, current_version(), no);
-    ranking_data = Cache.find(key)
+    ranking_data = Cache.get(key)
 
     if (ranking_data)
       # ユーザ情報をマージ
@@ -49,13 +48,7 @@ class Ranking
   #
   def self.insert_myranking(app_id, version, user_id, game_id, rank, score)
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, version, user_id);
-    p key
-    data = Cache.find(key)
-    if data.nil?
-      Cache.save(key, "#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
-    else
-      Cache.append(key, "#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
-    end
+    Cache.append(key, "#{game_id},#{rank},#{score}#{DATA_DELEMITER}")
   end
 
   #
@@ -64,7 +57,7 @@ class Ranking
   def self.get_myranking(app_id, user_id)
     # ランキングデータ
     key = sprintf(MYRANKING_CACHE_KEY_FORMAT, app_id, current_version(), user_id);
-    p Cache.find(key)
+    return Cache.get(key)
   end
 
   #

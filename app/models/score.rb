@@ -62,7 +62,7 @@ class Score
   #
   #
   def self.get_tablename_list(app_id)
-    return Cache.find(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id))
+    return Cache.get(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id))
   end
 
   def self.get_tablename_list_array(app_id)
@@ -103,7 +103,7 @@ class Score
       tablename_list += "#{tableinfo['table_name']}#{TABLENAMELIST_DELEMITER}"
     end
 
-    Cache.save(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), tablename_list)
+    Cache.set(sprintf(TABLENAMELIST_CACHE_KEY_FORMAT, app_id), tablename_list)
     return tablename_list
   end
 end
