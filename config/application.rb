@@ -59,5 +59,11 @@ module ScorerankingApi
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+    
+    # Allow IP Addresses
+    config.allow_ip_addresss = %w(127.0.0.1)
+    
+    # Available　Appid
+    config.available_app_ids = %w(1)
   end
 end
