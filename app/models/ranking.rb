@@ -64,12 +64,12 @@ class Ranking
   # 現在のバージョンを取得
   #
   def self.current_version
-    current_version = Cache.get_raw(CURRENT_VERSION_CACHE_KEY)
+    current_version = Cache.get(CURRENT_VERSION_CACHE_KEY)
 
     unless current_version
       # バージョンがない場合は初期化 version=0
       current_version = 0
-      Cache.set_raw(CURRENT_VERSION_CACHE_KEY, current_version)
+      Cache.set(CURRENT_VERSION_CACHE_KEY, current_version)
     end
 
     return current_version

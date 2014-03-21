@@ -25,7 +25,7 @@ module Cache
     client = Dalli::Client.new;
 
     tmp = get(key)
-    if (tmp) 
+    unless (tmp) 
       # 値が無い場合はset
       set(key, value)
     else
