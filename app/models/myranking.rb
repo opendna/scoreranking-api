@@ -40,7 +40,7 @@ class Myranking
   def save(version)
     data = Rails.cache.read(table(version))
     if data
-      data.merge! {:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total}
+      data.merge!({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
       Rails.cache.write(table(version), data)
     else
       Rails.cache.write(table(version), {:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})

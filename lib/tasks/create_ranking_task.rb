@@ -16,7 +16,7 @@ class Tasks::CreateRankingTask
 
       next_version = Version.current(app_id) + 1
       create_rankings(app_id, next_version)
-      Ranking.update_version(app_id, next_version)
+      Version.update(app_id, next_version)
 
       Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
       logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
@@ -80,7 +80,7 @@ class Tasks::CreateRankingTask
 
         # マイランキングを生成する
         @myranking = Myranking.new({:app_id=>app_id, :user_id=>user_id, :game_id=>game_id, :rank=>rank, :score=>score, :total=>total})
-        if @myranking.valild?
+        if @myranking.valid?
           @myranking.save(version)
         end
         

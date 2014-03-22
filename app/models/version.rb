@@ -20,7 +20,7 @@ class Version
   #
   # ランキングバージョンを更新
   #
-  def self.update_version(app_id, version)
+  def self.update(app_id, version)
     Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), version)
   end
 end
