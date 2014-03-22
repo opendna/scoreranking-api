@@ -9,14 +9,14 @@ class ScoresController < ApplicationController
   # スコア記録
   # PUT /score
   def save
-    app_id = params[:app_id]
-    game_id = params[:game_id]
-    user_id = params[:user_id]
-    score = params[:score]
-    
-    Score.create_table(app_id, game_id)
-    Score.insert(app_id, game_id, user_id, score)
-  
+    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => params[:score]})
+
+    if @score.valid?
+      @score.save
+    else
+      render :json => {'result'=>RESULT_NG} and return
+    end   
+
     render :json => {'result'=>RESULT_OK}
   end
 
@@ -27,9 +27,13 @@ class ScoresController < ApplicationController
     app_id = params[:app_id]
     datas = params[:datas]
 
-    datas.map do |key, data|
-      Score.create_table(app_id, data['game_id'])
-      Score.insert(app_id, data['game_id'], data['user_id'], data['score'])
+    datas.each_value do |data|
+      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => data[:score]})
+      if @score.valid?
+        @score.save
+      else
+        render :json => {'result'=>RESULT_NG} and return
+      end
     end
 
     render :json => {'result'=>RESULT_OK}
@@ -39,12 +43,14 @@ class ScoresController < ApplicationController
   # スコア削除
   # DELETE /score
   def delete
-    app_id = params[:app_id]
-    game_id = params[:game_id]
-    user_id = params[:user_id]
+    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => 0})
 
-    Score.delete(app_id, game_id, user_id)
-    
+    if @score.valid?
+      @score.delete
+    else
+      render :json => {'result'=>RESULT_NG} and return
+    end
+
     render :json => {'result'=>RESULT_OK}
   end
 
@@ -55,8 +61,13 @@ class ScoresController < ApplicationController
     app_id = params[:app_id]
     datas = params[:datas]
 
-    datas.map do |key, data|
-      Score.delete(app_id, data['game_id'], data['user_id'])
+    datas.each_value do |data|
+      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => 0})
+      if @score.valid?
+        @score.delete
+      else
+        render :json => {'result'=>RESULT_NG} and return
+      end
     end
 
     render :json => {'result'=>RESULT_OK}
