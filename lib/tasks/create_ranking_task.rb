@@ -2,20 +2,21 @@
 
 #
 # ランキング生成バッチ
-#　bundle exec rails runner "Tasks::CreateRankingTask.execute app_id:1"
+#　bundle exec rails runner "Tasks::CreateRankingTask.execute app_id:1,rank_type:1"
 #　bundle exec rails runner "Tasks::CreateRankingTask.reset_status app_id:1"
 class Tasks::CreateRankingTask
   WORKING_STATUS_CACHE_KEY = "ranking_task_%d"
 
   def self.execute(params)
     app_id = params[:app_id]
-    logd "Tasks::CreateRankingTask START, app_id:#{app_id}"
+    rank_type = params[:rank_type]
+    logd "Tasks::CreateRankingTask START, app_id:#{app_id} rank_type:#{rank_type}"
 
     Rails.cache.fetch(sprintf(WORKING_STATUS_CACHE_KEY, app_id)) do
       Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
 
       next_version = Version.current(app_id) + 1
-      create_rankings(app_id, next_version)
+      create_rankings(app_id, rank_type, next_version)
       Version.update(app_id, next_version)
 
       Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
@@ -30,7 +31,7 @@ class Tasks::CreateRankingTask
   #
   # ランキングを生成する
   #
-  def self.create_rankings(app_id, version)
+  def self.create_rankings(app_id, rank_type, version)
     logd "version:#{version} ランキング生成開始"
 
     tablename_list = Score.get_tablename_list(app_id)
@@ -38,7 +39,7 @@ class Tasks::CreateRankingTask
 
     logd "score_tables => #{tablename_list}"
 
-    rank_type = 1
+    where = condition(app_id, rank_type)
     tablename_list.each do |table|
       table_name = table['table_name']
       
@@ -52,7 +53,7 @@ class Tasks::CreateRankingTask
             user_id,
             max(score) as score
           from #{table_name}
-          where inserted_at >= DATE_ADD(NOW(), INTERVAL -3 MONTH)
+          where #{where}
           group by user_id
         ) tmp
         order by score desc;
@@ -88,6 +89,23 @@ class Tasks::CreateRankingTask
       end
     end
     logd "version:#{version} ランキング生成完了"
+  end
+
+  #
+  # ランキング対象データ検索条件
+  #
+  def self.condition(app_id, rank_type)
+    Rails.cache.fetch("rank_type__#{app_id}_#{rank_type}") do
+      case app_id
+      when 1
+        case rank_type
+        when 1
+          return "inserted_at >= DATE_ADD(NOW(), INTERVAL -3 MONTH)"
+        else
+        end
+      else
+      end
+    end
   end
 
   #
