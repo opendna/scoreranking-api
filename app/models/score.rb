@@ -74,7 +74,7 @@ class Score
   #
   def self.get_tablename_list(app_id)
     sql =<<-EOS
-          select table_name from information_schema.tables where table_name like 'score_#{app_id}%';
+          select table_name from information_schema.tables where table_name like 'score__#{app_id}%';
         EOS
     return ActiveRecord::Base.connection.select(sql)
   end
@@ -83,6 +83,6 @@ class Score
   # game_id抽出
   #
   def self.get_game_id(table_name)
-    table_name.split('__').split('_')[1].to_i
+    table_name.split('__')[1].split('_')[1].to_i
   end
 end

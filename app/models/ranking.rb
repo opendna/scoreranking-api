@@ -31,8 +31,12 @@ class Ranking
   #
   # テーブル名
   #
+  def self.table(app_id, game_id, rank_type, version, no)
+    "rank__#{app_id}_#{game_id}_#{rank_type}_#{version}_#{no}"
+  end
+
   def table(version)
-    "rank__#{self.app_id}_#{self.game_id}_#{self.rank_type}_#{version}_#{self.no}"
+    Ranking.table(self.app_id, self.game_id, self.rank_type, version, self.no)
   end
     
   #
@@ -45,16 +49,19 @@ class Ranking
   #
   # ランキング取得
   #
-  def self.get_ranking(app_id, offset, limit)
-    version = Version.current(app_id)
+  def self.get_ranking(condition)
+    version = Version.current(condition.app_id)
     rankings = {}
+    
+    limit = condition.limit.to_i
+    offset = condition.offset.to_i
 
     limit.times do
-      ranking_data = Rails.cache.read(table(version))
+      ranking_data = Rails.cache.read(table(condition.app_id, condition.game_id, condition.rank_type, version, offset))
 
       if (ranking_data)
         # ユーザ情報をマージ
-        userinfo = UserInfo.find(app_id, ranking_data.user_id)
+        userinfo = UserInfo.find(condition.app_id, ranking_data[:user_id])
         if (userinfo) 
           ranking_data.merge!({:userinfo=>userinfo})
         end

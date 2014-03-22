@@ -33,6 +33,7 @@ class Myranking
   def self.table(app_id, version, user_id)
     "myrank__#{app_id}_#{version}_#{user_id}"
   end
+
   def table(version)
     Myranking.table(self.app_id, version, self.user_id)
   end
@@ -53,8 +54,8 @@ class Myranking
   #
   # マイランキングデータ取得
   #
-  def self.get_ranking(app_id, user_id)
-    version = Version.current(app_id)
-    Rails.cache.read(table(app_id, version, user_id))
+  def self.get_ranking(condition)
+    version = Version.current(condition.app_id)
+    Rails.cache.read(table(condition.app_id, version, condition.user_id))
   end
 end
