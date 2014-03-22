@@ -30,28 +30,31 @@ class Myranking
   #
   # テーブル名
   #
-  def table(version)
-    "myrank__#{self.app_id}_#{version}_#{self.user_id}"
+  def self.table(app_id, version, user_id)
+    "myrank__#{app_id}_#{version}_#{user_id}"
   end
-
+  def table(version)
+    Myranking.table(self.app_id, version, self.user_id)
+  end
+  
   #
   # マイランキングデータ追加
   #
   def save(version)
     data = Rails.cache.read(table(version))
     if data
-      data.merge!({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
+      data.push({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
       Rails.cache.write(table(version), data)
     else
-      Rails.cache.write(table(version), {:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
+      Rails.cache.write(table(version), [{:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total}])
     end
   end
 
   #
   # マイランキングデータ取得
   #
-  def self.get_ranking(app_id)
+  def self.get_ranking(app_id, user_id)
     version = Version.current(app_id)
-    Rails.cache.read(table(version))
+    Rails.cache.read(table(app_id, version, user_id))
   end
 end
