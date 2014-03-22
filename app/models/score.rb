@@ -78,4 +78,11 @@ class Score
         EOS
     return ActiveRecord::Base.connection.select(sql)
   end
+
+  #
+  # game_id抽出
+  #
+  def self.get_game_id(table_name)
+    table_name.split('__').split('_')[1].to_i
+  end
 end

@@ -14,7 +14,6 @@ class Tasks::CreateRankingTask
     Rails.cache.fetch(sprintf(WORKING_STATUS_CACHE_KEY, app_id)) do
       Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
 
-      # ランキング生成処理
       next_version = Version.current(app_id) + 1
       create_rankings(app_id, next_version)
       Ranking.update_version(app_id, next_version)
@@ -46,34 +45,44 @@ class Tasks::CreateRankingTask
       sql =<<-EOS
         select
           user_id,
-          max(score) as score
-        from #{table_name}
-        where inserted_at >= DATE_ADD(NOW(), INTERVAL -3 MONTH)
-        group by user_id
-        order by score desc
-        ;
+          score,
+          count(*) as total
+        from (
+          select
+            user_id,
+            max(score) as score
+          from #{table_name}
+          where inserted_at >= DATE_ADD(NOW(), INTERVAL -3 MONTH)
+          group by user_id
+        ) tmp
+        order by score desc;
       EOS
       
       result = ActiveRecord::Base.connection.select(sql)
 
-      game_id = table_name.split('_')[1].to_i
+      game_id = Score.get_game_id(table_name)
       no = 1
       rank = 1
       prev_score = 0
       result.each do |rank_data|
         user_id = rank_data['user_id']
         score = rank_data['score']
+        total = rank_data['total']
 
-        # 上位とスコアを比較し、同順位とするか判定
-        if (score < prev_score)
-          rank = no
-        end
+        # 同順位の判定
+        rank = no if (score < prev_score)
 
         # ランキングを生成する
-        Ranking.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
+        @ranking = Ranking.new({:app_id=>app_id, :game_id=>game_id, :rank_type=>rank_type, :no=>no, :rank=>rank, :user_id=>user_id, :score=>score})
+        if @ranking.valid?
+          @ranking.save(version)
+        end
 
         # マイランキングを生成する
-        Ranking.insert_myranking(app_id, version, user_id, game_id, rank, score)
+        @myranking = Myranking.new({:app_id=>app_id, :user_id=>user_id, :game_id=>game_id, :rank=>rank, :score=>score, :total=>total})
+        if @myranking.valild?
+          @myranking.save(version)
+        end
         
         no += 1
       end

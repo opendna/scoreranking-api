@@ -4,45 +4,65 @@
 # ランキング
 #
 class Ranking
+  include ActiveModel::Validations
+  include ActiveModel::Conversion
+  extend ActiveModel::Naming
 
+  attr_accessor :app_id, :game_id, :rank_type, :no, :rank, :user_id, :score
+  
+  validates_presence_of :app_id, :game_id, :rank_type, :no, :rank, :user_id, :score
+  validates :app_id, :numericality => :only_integer
+  validates :game_id, :numericality => :only_integer
+  validates :rank_type, :numericality => :only_integer
+  validates :no, :numericality => :only_integer
+  validates :rank, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0}
+  validates :user_id, :numericality => :only_integer
+  validates :score, :numericality => {:greater_than_or_equal_to => 0}
+
+  def initialize(attributes = {})
+    attributes.each do |name, value|
+      send("#{name}=", value)
+    end
+  end
+  def persisted?
+    false
+  end
+
+  #
+  # テーブル名
+  #
+  def table(version)
+    "rank__#{self.app_id}_#{self.game_id}_#{self.rank_type}_#{version}_#{self.no}"
+  end
     
-  RANKING_CACHE_KEY_FORMAT = "rank_%d_%d_%d_%d_%d" # rank_[app_id]_[game_id]_[rank_type]_[version]_[no]
-  DATA_DELEMITER = "|"
-
   #
   # ランキングデータ追加
   #
-  def self.insert_ranking(app_id, game_id, rank_type, version, no, rank, user_id, score)
-    key = sprintf(RANKING_CACHE_KEY_FORMAT, app_id, game_id, rank_type, version, no);
-    Rails.logger.debug "insert_ranking:#{key}"
-    Rails.cache.write(key, "#{rank},#{user_id},#{score}")
+  def save(version)
+    Rails.cache.write(table(version), {:rank=>self.rank, :user_id=>self.user_id, :score=>self.score})
   end
 
   #
   # ランキング取得
   #
-  def self.get_ranking(condition)
+  def self.get_ranking(app_id, offset, limit)
+    version = Version.current(app_id)
     rankings = {}
-    version = Version.current(condition.app_id)
 
-    loop_count = condition.limit.to_i
-    number = condition.offset.to_i
-
-    loop_count.times do
-      key = sprintf(RANKING_CACHE_KEY_FORMAT, condition.app_id, condition.game_id, condition.rank_type, version, number);
-      ranking_data = Rails.cache.read(key)
+    limit.times do
+      ranking_data = Rails.cache.read(table(version))
 
       if (ranking_data)
         # ユーザ情報をマージ
-        user_id = ranking_data.split(',')[1].to_i
-        userinfo = UserInfo.find(condition.app_id, user_id)
+        userinfo = UserInfo.find(app_id, ranking_data.user_id)
         if (userinfo) 
-          ranking_data = "#{ranking_data}#{DATA_DELEMITER}#{userinfo}"
+          ranking_data.merge!({:userinfo=>userinfo})
         end
-        rankings.merge!({number => ranking_data})
+        rankings.merge!({offset => ranking_data})
       end
-      number += 1
+      offset += 1
     end
+
     rankings
   end
 end

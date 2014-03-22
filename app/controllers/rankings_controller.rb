@@ -15,9 +15,7 @@ class RankingsController < ApplicationController
     
     if condition.valid?
       rankings = Ranking.get_ranking(condition)
-      api_result = {'result'=>RESULT_OK}
-      api_result.merge!(rankings) if rankings
-      render :json => api_result
+      render :json => {'result'=>RESULT_OK, 'ranking'=>rankings}
     else
       render :json => {'result'=>RESULT_NG}
     end
@@ -30,9 +28,8 @@ class RankingsController < ApplicationController
     condition = MyrankingParameter.new({:app_id => params[:app_id], :user_id => params[:user_id]})
 
     if condition.valid?
-      myranking = Myranking.get_ranking(condition)
-      api_result = {'result'=>RESULT_OK, 'myranking'=>myranking}
-      render :json => api_result
+      myranking = Myranking.get_ranking(condition.app_id)
+      render :json => {'result'=>RESULT_OK, 'myranking'=>myranking}
     else
       render :json => {'result'=>RESULT_NG}
     end
