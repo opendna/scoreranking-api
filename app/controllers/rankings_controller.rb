@@ -9,8 +9,8 @@ class RankingsController < ApplicationController
   # ランキング取得
   # GET /ranking
   def ranking
-    condition = RankingParameter.new({:app_id => params[:app_id],
-      :game_id => params[:game_id], :rank_type => params[:rank_type],
+    condition = RankingParameter.new({
+      :app_id => params[:app_id], :game_id => params[:game_id], :rank_type => params[:rank_type],
       :offset => params[:offset], :limit => params[:limit]})
     
     if condition.valid?
@@ -27,13 +27,14 @@ class RankingsController < ApplicationController
   # マイランキング取得
   # GET /my_ranking
   def my_ranking
-    app_id = params[:app_id]
-    user_id = params[:user_id]
+    condition = MyrankingParameter.new({:app_id => params[:app_id], :user_id => params[:user_id]})
 
-    myranking = Ranking.get_myranking(app_id, user_id)
-
-    api_result = {'result'=>RESULT_OK, 'myranking'=>myranking}
-  
-    render :json => api_result
+    if condition.valid?
+      myranking = Myranking.get_ranking(condition)
+      api_result = {'result'=>RESULT_OK, 'myranking'=>myranking}
+      render :json => api_result
+    else
+      render :json => {'result'=>RESULT_NG}
+    end
   end
 end

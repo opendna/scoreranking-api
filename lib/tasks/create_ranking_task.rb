@@ -15,7 +15,7 @@ class Tasks::CreateRankingTask
       Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
 
       # ランキング生成処理
-      next_version = Ranking.current_version(app_id) + 1
+      next_version = Version.current(app_id) + 1
       create_rankings(app_id, next_version)
       Ranking.update_version(app_id, next_version)
 

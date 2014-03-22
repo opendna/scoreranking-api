@@ -5,8 +5,6 @@
 #
 class Ranking
 
-  # バージョン管理
-  CURRENT_VERSION_CACHE_KEY = "current_version_%d"
     
   RANKING_CACHE_KEY_FORMAT = "rank_%d_%d_%d_%d_%d" # rank_[app_id]_[game_id]_[rank_type]_[version]_[no]
   DATA_DELEMITER = "|"
@@ -25,7 +23,7 @@ class Ranking
   #
   def self.get_ranking(condition)
     rankings = {}
-    version = current_version(condition.app_id)
+    version = Version.current(condition.app_id)
 
     loop_count = condition.limit.to_i
     number = condition.offset.to_i
@@ -46,22 +44,5 @@ class Ranking
       number += 1
     end
     rankings
-  end
-
-  #
-  # 現在のバージョンを取得
-  #
-  def self.current_version(app_id)
-    current_version = Rails.cache.fetch(sprintf(CURRENT_VERSION_CACHE_KEY, app_id)) do
-      # バージョンがない場合は初期化 version=0
-      current_version = 0
-    end
-  end
-  
-  #
-  # ランキングバージョンを更新
-  #
-  def self.update_version(app_id, version)
-    Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), version)
   end
 end
