@@ -37,9 +37,9 @@ class Version
       sql =<<-EOS
         select current_version from #{db_table} where app_id = #{app_id};
       EOS
-      result = ActiveRecord::Base.connection.select sql
+      result = ActiveRecord::Base.connection.select_one sql
       unless result.empty?
-        current_version = result[:current_version]
+        current_version = result['current_version']
       else
         current_version = 0
         sql =<<-EOS

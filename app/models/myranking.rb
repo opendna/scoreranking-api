@@ -18,8 +18,7 @@ class Myranking
   def self.insert(version, app_id, user_id, game_id, rank, score, total)
     
     data = Rails.cache.fetch(table(app_id, version, user_id)) do
-      [{:game_id=>game_id, :score=>score, :rank=>rank, :total=>total}]
-      return
+      []
     end
     
     data.push({:game_id=>game_id, :score=>score, :rank=>rank, :total=>total})
