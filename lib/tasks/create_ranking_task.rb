@@ -12,20 +12,20 @@ class Tasks::CreateRankingTask
     rank_type = params[:rank_type]
     logd "Tasks::CreateRankingTask START, app_id:#{app_id} rank_type:#{rank_type}"
 
-    Rails.cache.fetch(sprintf(WORKING_STATUS_CACHE_KEY, app_id)) do
-      Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
-
-      next_version = Version.current(app_id) + 1
-      create_rankings(app_id, rank_type, next_version)
-      Version.update(app_id, next_version)
-
-      Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
-      logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
+    if Rails.cache.read(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
+      loge "多重起動発生のため、バッチタスクを終了"
+      loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
       return
     end
-    
-    loge "多重起動発生のため、バッチタスクを終了"
-    loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
+
+    Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
+
+    next_version = Version.current(app_id) + 1
+    create_rankings(app_id, rank_type, next_version)
+    Version.update(app_id, next_version)
+
+    Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
+    logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
   end
 
   #
