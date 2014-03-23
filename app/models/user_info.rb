@@ -3,10 +3,7 @@
 #
 # ユーザ情報
 #
-class UserInfo
-  include ActiveModel::Validations
-  include ActiveModel::Conversion
-  extend ActiveModel::Naming
+class UserInfo < NonPersistedModel
 
   attr_accessor :app_id, :user_id, :user_data
   
@@ -17,15 +14,6 @@ class UserInfo
 
   TABLE_NAME_FORMAT = "userinfo_%d"     # userinfo_[app_id]
   CACHE_KEY_FORMAT  = "userinfo_%d_%d"  # userinfo_[app_id]_[user_id]
-
-  def initialize(attributes = {})
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
-  end
-  def persisted?
-    false
-  end
 
   #
   # テーブルを作成する

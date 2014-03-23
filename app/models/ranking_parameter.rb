@@ -3,10 +3,7 @@
 #
 # ランキング検索条件
 #
-class RankingParameter
-  include ActiveModel::Validations
-  include ActiveModel::Conversion
-  extend ActiveModel::Naming
+class RankingParameter < NonPersistedModel
 
   attr_accessor :app_id, :game_id, :rank_type, :offset, :limit
   
@@ -17,12 +14,4 @@ class RankingParameter
   validates :offset, :numericality => {:only_integer => true, :greater_than => 0}
   validates :limit, :numericality => {:only_integer => true, :greater_than => 0, :less_than_or_equal_to => 100}
   
-  def initialize(attributes = {})
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
-  end
-  def persisted?
-    false
-  end
 end

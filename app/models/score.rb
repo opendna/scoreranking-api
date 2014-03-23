@@ -3,10 +3,7 @@
 #
 # スコア
 #
-class Score
-  include ActiveModel::Validations
-  include ActiveModel::Conversion
-  extend ActiveModel::Naming
+class Score < NonPersistedModel
 
   attr_accessor :app_id, :game_id, :user_id, :score
   
@@ -18,15 +15,6 @@ class Score
 
   TABLE_NAME_FORMAT = "score__%d_%d" # score_[app_id]_[game_id]
   CACHE_KEY_FORMAT  = "score__%d_%d" # score_[app_id]_[game_id]_[user_id]
-
-  def initialize(attributes = {})
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
-  end
-  def persisted?
-    false
-  end
 
   #
   # テーブルが存在しない場合は作成する
