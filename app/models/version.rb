@@ -5,20 +5,24 @@
 #
 class Version
 
-  CURRENT_VERSION_CACHE_KEY = "current_version_%d"
-
-  def self.table
-    return "ranking_version"
+  def self.db_table
+    "ranking_version"
+  end
+  
+  def self.cache_table(app_id)
+    "current_version_#{app_id}"
   end
 
   def self.create_table_if_need
-    Rails.cache.fetch("exists_version_table__" + table) do
+    Rails.cache.fetch("exists_version_table__" + db_table) do
       sql =<<-EOS
-        create table #{table} if not exists(
+        create table if not exists #{db_table} (
           app_id integer not null,
-          current_version default 0
+          current_version integer default 0
         );
       EOS
+      ActiveRecord::Base.connection.execute sql
+      true
     end
   end
 
@@ -26,27 +30,37 @@ class Version
   # ランキングバージョンを取得
   #
   def self.current(app_id)
-    current_version = Rails.cache.fetch(sprintf(CURRENT_VERSION_CACHE_KEY, app_id)) do
+    current_version = Rails.cache.fetch(cache_table(app_id)) do
       # バージョンがない場合はDBから取得
       create_table_if_need
 
       sql =<<-EOS
-        select current_version from #{table} where app_id = #{app_id};
+        select current_version from #{db_table} where app_id = #{app_id};
       EOS
       result = ActiveRecord::Base.connection.select sql
-      result[:current_version]
+      unless result.empty?
+        current_version = result[:current_version]
+      else
+        current_version = 0
+        sql =<<-EOS
+          insert into #{db_table}(app_id, current_version) values(#{app_id}, #{current_version});
+        EOS
+        ActiveRecord::Base.connection.execute sql
+      end
+      current_version
     end
+    current_version
   end
   
   #
   # ランキングバージョンを更新
   #
   def self.update(app_id, version)
-    Rails.cache.write(sprintf(CURRENT_VERSION_CACHE_KEY, app_id), version)
+    Rails.cache.write(cache_table(app_id), version)
     
     sql =<<-EOS
-      update #{table} set current_version = #{version} where app_id = #{app_id};
+      update #{db_table} set current_version = #{version} where app_id = #{app_id};
     EOS
-    result = ActiveRecord::Base.connection.execute sql
+    ActiveRecord::Base.connection.execute sql
   end
 end

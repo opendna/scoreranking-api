@@ -16,7 +16,7 @@ class Ranking
   # ランキングデータ追加
   #
   def self.insert(version, app_id, game_id, rank_type, no, rank, user_id, score)
-    Rails.cache.write(table(app_id, game_id, rank_type, version, no), {:rank=>self.rank, :user_id=>self.user_id, :score=>self.score})
+    Rails.cache.write(table(app_id, game_id, rank_type, version, no), {:rank=>rank, :user_id=>user_id, :score=>score})
   end
 
   #
@@ -24,7 +24,7 @@ class Ranking
   #
   def self.get_ranking(condition)
     version = Version.current(condition.app_id)
-    rankings = {}
+    rankings = {:version => version}
     
     limit = condition.limit.to_i
     offset = condition.offset.to_i

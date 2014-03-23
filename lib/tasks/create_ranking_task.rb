@@ -24,9 +24,10 @@ class Tasks::CreateRankingTask
       next_version = Version.current(app_id) + 1
       create_rankings(app_id, rank_type, next_version)
       Version.update(app_id, next_version)
-    rescue => e
-      logd "Tasks::CreateRankingTask END with Exception. app_id:#{app_id}, Exception is #{e}"
-    else
+    # rescue => e
+    #   loge "Tasks::CreateRankingTask END with Exception. app_id:#{app_id}, Exception is:"
+    #   loge e
+    # else
       logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
     ensure
       Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
