@@ -52,8 +52,7 @@ class Tasks::CreateRankingTask
       sql =<<-EOS
         select
           user_id,
-          score,
-          count(*) as total
+          score
         from (
           select
             user_id,
@@ -66,6 +65,7 @@ class Tasks::CreateRankingTask
       EOS
       
       result = ActiveRecord::Base.connection.select(sql)
+      total = result.count
 
       game_id = Score.get_game_id(table_name)
       no = 1
@@ -74,7 +74,6 @@ class Tasks::CreateRankingTask
       result.each do |rank_data|
         user_id = rank_data['user_id']
         score = rank_data['score']
-        total = rank_data['total']
 
         # 同順位の判定
         rank = no if (score < prev_score)

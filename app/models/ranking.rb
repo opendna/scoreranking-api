@@ -31,15 +31,15 @@ class Ranking
 
     limit.times do
       ranking_data = Rails.cache.read(table(condition.app_id, condition.game_id, condition.rank_type, version, offset))
-
-      if (ranking_data)
+      if ranking_data && !ranking_data.empty?
         # ユーザ情報をマージ
         userinfo = UserInfo.find(condition.app_id, ranking_data[:user_id])
-        if (userinfo) 
-          ranking_data.merge!({:userinfo=>userinfo})
-        end
+        ranking_data.merge!({:userinfo=>userinfo}) if userinfo
         rankings.merge!({offset => ranking_data})
+      else
+        rankings.merge!({offset => []})
       end
+
       offset += 1
     end
 
