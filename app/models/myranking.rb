@@ -4,28 +4,6 @@
 # マイランキング
 #
 class Myranking
-  include ActiveModel::Validations
-  include ActiveModel::Conversion
-  extend ActiveModel::Naming
-
-  attr_accessor :app_id, :user_id, :game_id, :score, :rank, :total
-  
-  validates_presence_of :app_id, :user_id, :game_id, :score, :rank, :total
-  validates :app_id, :numericality => :only_integer
-  validates :user_id, :numericality => :only_integer
-  validates :game_id, :numericality => :only_integer
-  validates :score, :numericality => {:greater_than_or_equal_to => 0}
-  validates :rank, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0}
-  validates :total, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0}
-
-  def initialize(attributes = {})
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
-  end
-  def persisted?
-    false
-  end
 
   #
   # テーブル名
@@ -33,22 +11,19 @@ class Myranking
   def self.table(app_id, version, user_id)
     "myrank__#{app_id}_#{version}_#{user_id}"
   end
-
-  def table(version)
-    Myranking.table(self.app_id, version, self.user_id)
-  end
   
   #
   # マイランキングデータ追加
   #
-  def save(version)
-    data = Rails.cache.fetch(table(version)) do
-      [{:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total}]
+  def self.insert(version, app_id, user_id, game_id, rank, score, total)
+    
+    data = Rails.cache.fetch(table(app_id, version, user_id)) do
+      [{:game_id=>game_id, :score=>score, :rank=>rank, :total=>total}]
       return
     end
     
-    data.push({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
-    Rails.cache.write(table(version), data)
+    data.push({:game_id=>game_id, :score=>score, :rank=>rank, :total=>total})
+    Rails.cache.write(table(app_id, version, user_id), data)
   end
 
   #

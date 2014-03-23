@@ -79,16 +79,9 @@ class Tasks::CreateRankingTask
         rank = no if (score < prev_score)
 
         # ランキングを生成する
-        @ranking = Ranking.new({:app_id=>app_id, :game_id=>game_id, :rank_type=>rank_type, :no=>no, :rank=>rank, :user_id=>user_id, :score=>score})
-        if @ranking.valid?
-          @ranking.save(version)
-        end
-
+        Ranking.insert(version, app_id, game_id, rank_type, no, rank, user_id, score)
         # マイランキングを生成する
-        @myranking = Myranking.new({:app_id=>app_id, :user_id=>user_id, :game_id=>game_id, :rank=>rank, :score=>score, :total=>total})
-        if @myranking.valid?
-          @myranking.save(version)
-        end
+        Myranking.insert(version, app_id, user_id, game_id, rank, score, total)
         
         no += 1
       end
