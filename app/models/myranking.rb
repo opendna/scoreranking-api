@@ -42,13 +42,13 @@ class Myranking
   # マイランキングデータ追加
   #
   def save(version)
-    data = Rails.cache.read(table(version))
-    if data
-      data.push({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
-      Rails.cache.write(table(version), data)
-    else
-      Rails.cache.write(table(version), [{:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total}])
+    data = Rails.cache.fetch(table(version)) do
+      [{:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total}]
+      return
     end
+    
+    data.push({:game_id=>self.game_id, :score=>self.score, :rank=>self.rank, :total=>self.total})
+    Rails.cache.write(table(version), data)
   end
 
   #
