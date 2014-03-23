@@ -1,0 +1,8 @@
+#
+# app_id:
+#   rank_type:
+#   condition: condition method
+#
+1:
+  1:
+    condition: "by_quarter"

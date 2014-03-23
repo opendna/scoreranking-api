@@ -94,7 +94,9 @@ class Tasks::CreateRankingTask
   #
   def self.condition(app_id, rank_type)
     # ランキングタイプを設定ファイルからロード
-    send("condition_by_quarter")
+    data = YAML.load_file("#{Rails.root}/config/rank_type_condition.yml")
+    method_name = data[app_id][rank_type]['condition']
+    send("condition_#{method_name}")
   end
 
   #
