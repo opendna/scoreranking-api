@@ -93,17 +93,8 @@ class Tasks::CreateRankingTask
   # ランキング対象データ検索条件
   #
   def self.condition(app_id, rank_type)
-    Rails.cache.fetch("rank_type__#{app_id}_#{rank_type}") do
-      case app_id
-      when 1
-        case rank_type
-        when 1
-          return "inserted_at >= DATE_ADD(NOW(), INTERVAL -3 MONTH)"
-        else
-        end
-      else
-      end
-    end
+    # ランキングタイプを設定ファイルからロード
+    send("condition_by_quarter")
   end
 
   #
@@ -122,5 +113,28 @@ class Tasks::CreateRankingTask
   #
   def self.loge(message)
     Rails.logger.error message
+  end
+
+  #
+  # ランキングタイプ：四半期
+  #
+  def self.condition_by_quarter
+    # 四半期ごとの期間を指定する
+    # 1月〜3月｜4月〜6月｜7月〜9月｜10月〜12月
+    q = (Time.new.month/3.0).ceil
+    year = Time.new.year
+
+    case q
+    when 1
+      return "inserted_at between '#{year}-01-01 0:00:00' and '#{year}-03-31 23:59:59'"
+    when 2
+      return "inserted_at between '#{year}-04-01 0:00:00' and '#{year}-06-30 23:59:59'"
+    when 3
+      return "inserted_at between '#{year}-07-01 0:00:00' and '#{year}-09-30 23:59:59'"
+    when 4
+      return "inserted_at between '#{year}-10-01 0:00:00' and '#{year}-12-31 23:59:59'"
+    else
+      "1=1"
+    end
   end
 end
