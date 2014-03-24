@@ -45,9 +45,10 @@ ScorerankingApi::Application.configure do
   # Disable/enable fragment and page caching in ActionController
   config.action_controller.perform_caching = true
   # The underlying cache store to use.
-  config.cache_store = :dalli_store, 'localhost:11211'
-  # The session store is completely different from the normal data cache
-  # config.session_store = :dalli_store, 'localhost:11211'
+  memcached_config = YAML.load_file(Rails.root.join('config/memcached.yml'))
+  memcached_hosts = memcached_config['defaults']['servers']
+  # pass the servers to dalli setup
+  config.cache_store = :dalli_store, *memcached_hosts
 
   # passengerの場合
   if defined?(PhusionPassenger)
