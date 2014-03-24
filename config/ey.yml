@@ -1,0 +1,3 @@
+defaults:
+  precompile_assets: true
+  migration: false
