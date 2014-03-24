@@ -49,6 +49,24 @@ ScorerankingApi::Application.configure do
   # The session store is completely different from the normal data cache
   # config.session_store = :dalli_store, 'localhost:11211'
 
+  # passengerの場合
+  if defined?(PhusionPassenger)
+    PhusionPassenger.on_event(:starting_worker_process) do |forked|
+      Rails.cache.reset if forked
+
+      ObjectSpace.each_object(ActionDispatch::Session::DalliStore) { |obj| obj.reset }
+    end
+  end
+
+  # unicornの場合
+  after_fork do |server, worker|
+    if defined?(ActiveSupport::Cache::DalliStore) && Rails.cache.is_a?(ActiveSupport::Cache::DalliStore)
+      Rails.cache.reset
+
+      ObjectSpace.each_object(ActionDispatch::Session::DalliStore) { |obj| obj.reset }
+    end
+  end
+
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"
 
