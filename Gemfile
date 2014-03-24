@@ -44,3 +44,8 @@ gem 'jquery-rails'
 
 # To use debugger
 # gem 'debugger'
+
+group :production do
+  gem 'newrelic_rpm'
+  gem 'ey_config'
+end
