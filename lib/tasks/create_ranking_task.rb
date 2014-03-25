@@ -7,21 +7,20 @@
 # リカバリーコマンド（フラグをリセットしたい場合に実行）、通常は使用しない
 #　bundle exec rails runner "Tasks::CreateRankingTask.reset_status app_id:1"
 class Tasks::CreateRankingTask
-  WORKING_STATUS_CACHE_KEY = "ranking_task_%d"
 
   def self.execute(params)
     app_id = params[:app_id]
     rank_type = params[:rank_type]
     logd "Tasks::CreateRankingTask START, app_id:#{app_id} rank_type:#{rank_type}"
 
-    if Rails.cache.read(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
+    if Rails.cache.read(working_flg(app_id, rank_type))
       loge "多重起動発生のため、バッチタスクを終了"
       loge "Tasks::CreateRankingTask END with duplicate execution error. app_id:#{app_id}"
       return
     end
 
     begin
-      Rails.cache.write(sprintf(WORKING_STATUS_CACHE_KEY, app_id), true)
+      Rails.cache.write(working_flg(app_id, rank_type), true)
 
       next_version = Version.current(app_id) + 1
       create_rankings(app_id, rank_type, next_version)
@@ -32,8 +31,15 @@ class Tasks::CreateRankingTask
     # else
       logd "Tasks::CreateRankingTask END, app_id:#{app_id}"
     ensure
-      Rails.cache.delete(sprintf(WORKING_STATUS_CACHE_KEY, app_id))
+      Rails.cache.delete(working_flg(app_id, rank_type))
     end
+  end
+
+  #
+  # 実行中フラグ
+  #
+  def self.working_flg(app_id, rank_type)
+    "ranking_task__#{app_id}__#{rank_type}"
   end
 
   #
