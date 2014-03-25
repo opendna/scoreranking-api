@@ -38,7 +38,7 @@ class Version
         select current_version from #{db_table} where app_id = #{app_id};
       EOS
       result = ActiveRecord::Base.connection.select_one sql
-      unless result.empty?
+      if !(result.nil? || result.empty?)
         current_version = result['current_version']
       else
         current_version = 0
