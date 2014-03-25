@@ -9,7 +9,7 @@ class Ranking
   # テーブル名
   #
   def self.table(app_id, game_id, rank_type, version, no)
-    "rank__#{app_id}_#{game_id}_#{rank_type}_#{version}_#{no}"
+    "rank__#{app_id}__#{game_id}__#{rank_type}__#{version}__#{no}"
   end
     
   #

@@ -12,8 +12,19 @@ class UserInfo < NonPersistedModel
   validates :user_id, :numericality => :only_integer
   validates_length_of :user_data, maximum:512
 
-  TABLE_NAME_FORMAT = "userinfo_%d"     # userinfo_[app_id]
-  CACHE_KEY_FORMAT  = "userinfo_%d_%d"  # userinfo_[app_id]_[user_id]
+  def table
+    UserInfo.table(self.app_id)
+  end
+  def self.table(app_id)
+    "userinfo_#{app_id}"
+  end
+
+  def cache_key
+    UserInfo.cache_key(self.app_id, self.user_id)
+  end
+  def self.cache_key(app_id, user_id)
+    "userinfo__#{app_id}__#{user_id}"
+  end
 
   #
   # テーブルを作成する
@@ -35,30 +46,25 @@ class UserInfo < NonPersistedModel
   # ユーザ情報を登録する
   #
   def save
-    table_name = sprintf(TABLE_NAME_FORMAT, app_id)
-    create_table_if_need table_name
+    create_table_if_need table()
 
     sql =<<-EOS
-      insert into #{table_name}(user_id, user_data) values(#{self.user_id}, '#{self.user_data}') on duplicate key
+      insert into #{table()}(user_id, user_data) values(#{self.user_id}, '#{self.user_data}') on duplicate key
       update user_data = '#{self.user_data}';
     EOS
     ActiveRecord::Base.connection.execute sql
   
     # cacheを更新する
-    key = sprintf(CACHE_KEY_FORMAT, self.app_id, self.user_id)
-    Rails.cache.write(key, self.user_data)
+    Rails.cache.write(cache_key(), self.user_data)
   end
 
   #
   # ユーザ情報を検索する
   #
   def self.find(app_id, user_id)
-    key = sprintf(CACHE_KEY_FORMAT, app_id, user_id)
-    
-    userinfo = Rails.cache.fetch(key) do
-      table_name = sprintf(TABLE_NAME_FORMAT, app_id);
+    userinfo = Rails.cache.fetch(self.cache_key(app_id, user_id)) do
       sql =<<-EOS
-        select user_data from #{table_name} where user_id = #{user_id}
+        select user_data from #{self.table(app_id, user_id)} where user_id = #{user_id}
       EOS
       userinfo = ActiveRecord::Base.connection.select_one sql
     end

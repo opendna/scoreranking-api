@@ -13,7 +13,7 @@ class Score < NonPersistedModel
   validates :score, :numericality => {:greater_than_or_equal_to => 0}
 
   def table
-    "score__#{self.app_id}_#{self.game_id}"
+    "score__#{self.app_id}__#{self.game_id}"
   end
 
   #
@@ -72,6 +72,6 @@ class Score < NonPersistedModel
   # game_id抽出
   #
   def self.get_game_id(table_name)
-    table_name.split('__')[1].split('_')[1].to_i
+    table_name.split('__')[2]
   end
 end
