@@ -61,8 +61,11 @@ class Score < NonPersistedModel
   #　テーブル定義を取得する
   #
   def self.get_tablename_list(app_id)
+    config = Rails.configuration.database_configuration
+    database = config[Rails.env]["database"]
+
     sql =<<-EOS
-          select table_name from information_schema.tables where table_name like 'score__#{app_id}%';
+          select table_name from information_schema.tables where TABLE_SCHEMA = "#{database}" and table_name like 'score__#{app_id}%';
         EOS
     return ActiveRecord::Base.connection.select(sql)
   end
