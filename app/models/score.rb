@@ -9,12 +9,12 @@ class Score < NonPersistedModel
   
   validates_presence_of :app_id, :game_id, :user_id, :score
   validates :app_id, :numericality => :only_integer
-  validates :game_id, :numericality => :only_integer
   validates :user_id, :numericality => :only_integer
   validates :score, :numericality => {:greater_than_or_equal_to => 0}
 
-  TABLE_NAME_FORMAT = "score__%d_%d" # score_[app_id]_[game_id]
-  CACHE_KEY_FORMAT  = "score__%d_%d" # score_[app_id]_[game_id]_[user_id]
+  def table
+    "score__#{self.app_id}_#{self.game_id}"
+  end
 
   #
   # テーブルが存在しない場合は作成する
@@ -37,11 +37,10 @@ class Score < NonPersistedModel
   # スコアを登録する
   #
   def save
-    table_name = sprintf(TABLE_NAME_FORMAT, self.app_id, self.game_id);
-    create_table_if_need(table_name)
+    create_table_if_need(table())
 
     sql =<<-EOS
-      insert into #{table_name}(user_id, score) values(#{self.user_id}, #{self.score});
+      insert into #{table()}(user_id, score) values(#{self.user_id}, #{self.score});
     EOS
     ActiveRecord::Base.connection.execute sql
   end
@@ -50,9 +49,8 @@ class Score < NonPersistedModel
   # スコアを削除する
   #
   def delete
-    table_name = sprintf(TABLE_NAME_FORMAT, self.app_id, self.game_id);
     sql =<<-EOS
-      delete from #{table_name} where user_id = #{self.user_id};
+      delete from #{table()} where user_id = #{self.user_id};
     EOS
     ActiveRecord::Base.connection.execute sql
   end
