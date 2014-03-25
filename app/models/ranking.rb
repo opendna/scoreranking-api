@@ -24,7 +24,7 @@ class Ranking
   #
   def self.get_ranking(condition)
     version = Version.current(condition.app_id)
-    rankings = {:version => version}
+    rankings = []
     
     limit = condition.limit.to_i
     offset = condition.offset.to_i
@@ -34,10 +34,10 @@ class Ranking
       if ranking_data && !ranking_data.empty?
         # ユーザ情報をマージ
         userinfo = UserInfo.find(condition.app_id, ranking_data[:user_id])
-        ranking_data.merge!({:userinfo=>userinfo}) if userinfo
-        rankings.merge!({offset => ranking_data})
+        ranking_data.merge!(JSON.parse(userinfo)) if userinfo
+        rankings.push ranking_data
       else
-        rankings.merge!({offset => []})
+        # rankings.push {}
       end
 
       offset += 1
