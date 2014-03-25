@@ -3,6 +3,8 @@
 #
 # ランキング生成バッチ
 #　bundle exec rails runner "Tasks::CreateRankingTask.execute app_id:1,rank_type:1"
+#
+# リカバリーコマンド（フラグをリセットしたい場合に実行）、通常は使用しない
 #　bundle exec rails runner "Tasks::CreateRankingTask.reset_status app_id:1"
 class Tasks::CreateRankingTask
   WORKING_STATUS_CACHE_KEY = "ranking_task_%d"
