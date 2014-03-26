@@ -33,7 +33,8 @@ class Ranking
       ranking_data = Rails.cache.read(table(condition.app_id, condition.game_id, condition.rank_type, version, offset))
       if ranking_data && !ranking_data.empty?
         # ユーザ情報をマージ
-        userinfo = UserInfo.find(condition.app_id, ranking_data[:user_id])
+        user_id = ranking_data[:user_id]
+        userinfo = UserInfo.find(condition.app_id, user_id)
         ranking_data.merge!(JSON.parse(userinfo)) if userinfo
         rankings.push ranking_data
       else

@@ -64,9 +64,10 @@ class UserInfo < NonPersistedModel
   def self.find(app_id, user_id)
     userinfo = Rails.cache.fetch(self.cache_key(app_id, user_id)) do
       sql =<<-EOS
-        select user_data from #{self.table(app_id, user_id)} where user_id = #{user_id}
+        select user_data from #{self.table(app_id)} where user_id = #{user_id}
       EOS
-      userinfo = ActiveRecord::Base.connection.select_one sql
+      result = ActiveRecord::Base.connection.select_one sql
+      result['user_data']
     end
     userinfo
   end
