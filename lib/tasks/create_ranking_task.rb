@@ -92,6 +92,7 @@ class Tasks::CreateRankingTask
         Myranking.insert(version, app_id, user_id, game_id, rank, score, total)
         
         no += 1
+        prev_score = score
       end
     end
     logd "version:#{version} ランキング生成完了"
