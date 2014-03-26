@@ -5,12 +5,13 @@
 #
 class Score < NonPersistedModel
 
-  attr_accessor :app_id, :game_id, :user_id, :score
+  attr_accessor :app_id, :game_id, :user_id, :score, :inserted_at
   
-  validates_presence_of :app_id, :game_id, :user_id, :score
+  validates_presence_of :app_id, :game_id, :user_id, :score, :inserted_at
   validates :app_id, :numericality => :only_integer
   validates :user_id, :numericality => :only_integer
   validates :score, :numericality => {:greater_than_or_equal_to => 0}
+  validates_datetime :inserted_at
 
   def table
     "score__#{self.app_id}__#{self.game_id}"
@@ -25,7 +26,7 @@ class Score < NonPersistedModel
         create table if not exists #{table_name} (
           user_id integer not null,
           score float not null,
-          inserted_at timestamp default current_timestamp()
+          inserted_at timestamp not null
         );
       EOS
       ActiveRecord::Base.connection.execute sql
@@ -40,7 +41,7 @@ class Score < NonPersistedModel
     create_table_if_need(table())
 
     sql =<<-EOS
-      insert into #{table()}(user_id, score) values(#{self.user_id}, #{self.score});
+      insert into #{table()}(user_id, score, inserted_at) values(#{self.user_id}, #{self.score}, '#{self.inserted_at}');
     EOS
     ActiveRecord::Base.connection.execute sql
   end

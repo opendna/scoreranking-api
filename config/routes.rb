@@ -3,7 +3,7 @@ ScorerankingApi::Application.routes.draw do
   #
   # スコア送信API
   #
-  match 'score/:app_id/:game_id/:user_id/:score', :to => 'scores#save', :via => :put
+  match 'score/:app_id/:game_id/:user_id/:inserted_at/:score', :to => 'scores#save', :via => :put
   match 'score', :to => 'scores#save', :via => :put
   
   match 'scores/:app_id/:datas', :to => 'scores#bulk_save', :via => :put
@@ -33,7 +33,7 @@ ScorerankingApi::Application.routes.draw do
   #
   # for debug
   #
-  # get 'debug' => 'scores#index'
+  get 'debug' => 'scores#index'
   # get 'debug' => 'user_infos#index'
   get 'debug' => 'rankings#index'
 

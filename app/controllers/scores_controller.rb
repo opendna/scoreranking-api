@@ -9,7 +9,7 @@ class ScoresController < ApplicationController
   # スコア記録
   # PUT /score
   def save
-    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => params[:score]})
+    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => params[:score], :inserted_at => Time.at(params[:inserted_at].to_i)})
 
     if @score.valid?
       @score.save
@@ -28,7 +28,7 @@ class ScoresController < ApplicationController
     datas = params[:datas]
 
     datas.each_value do |data|
-      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => data[:score]})
+      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => data[:score], :inserted_at => Time.at(params[:inserted_at].to_i)})
       if @score.valid?
         @score.save
       else
@@ -43,7 +43,7 @@ class ScoresController < ApplicationController
   # スコア削除
   # DELETE /score
   def delete
-    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => 0})
+    @score = Score.new({:app_id => params[:app_id], :game_id => params[:game_id], :user_id => params[:user_id], :score => 0, :inserted_at =>Time.now})
 
     if @score.valid?
       @score.delete
@@ -62,7 +62,7 @@ class ScoresController < ApplicationController
     datas = params[:datas]
 
     datas.each_value do |data|
-      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => 0})
+      @score = Score.new({:app_id => app_id, :game_id => data[:game_id], :user_id => data[:user_id], :score => 0, :inserted_at =>Time.now})
       if @score.valid?
         @score.delete
       else
