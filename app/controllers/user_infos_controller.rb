@@ -5,6 +5,11 @@
 #
 class UserInfosController < ApplicationController
 
+  def index
+    @userInfos = UserInfo.find(1,1)
+    render :json => @userInfos
+  end
+
   #
   # ユーザ情報登録／更新
   # PUT /user_info
