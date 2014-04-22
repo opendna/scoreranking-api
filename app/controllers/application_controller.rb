@@ -2,7 +2,7 @@
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  before_filter :check_ip, :check_app_id
+  # before_filter :check_ip, :check_app_id
   rescue_from Exception, :with => :handle_exception
 
   # レスポンスコード
