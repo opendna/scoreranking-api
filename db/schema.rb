@@ -13,73 +13,10 @@
 
 ActiveRecord::Schema.define(:version => 20140422021516) do
 
-  create_table "ranking_version", :id => false, :force => true do |t|
-    t.integer "app_id",                         :null => false
-    t.integer "current_version", :default => 0
-  end
-
   create_table "samples", :force => true do |t|
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
-  end
-
-  create_table "score__1__1", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__1_1", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_1", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_1_D0050", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_1_D0120", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_2", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_3", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "score__1__3_5", :id => false, :force => true do |t|
-    t.integer   "user_id",     :null => false
-    t.float     "score",       :null => false
-    t.timestamp "inserted_at", :null => false
-  end
-
-  create_table "tests", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  create_table "userinfo_1", :primary_key => "user_id", :force => true do |t|
-    t.text "user_data"
   end
 
 end

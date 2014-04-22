@@ -6,6 +6,16 @@ class SamplesController < ApplicationController
     render :json => result
   end
 
+  def master
+    @result = Sample.first
+    render :json => @result
+  end
+  
+  def slave1
+    @result = Sample.using(:slave1).first
+    render :json => @result
+  end
+
   # GET /samples/1
   # GET /samples/1.json
   def show

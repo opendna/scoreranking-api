@@ -3,6 +3,9 @@ ScorerankingApi::Application.routes.draw do
   resources :samples
   root :to => 'samples#index'
 
+  match 'master', :to => 'samples#master', :via => :get
+  match 'slave1', :to => 'samples#slave1', :via => :get
+
   #
   # スコア送信API
   #
