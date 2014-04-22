@@ -2,7 +2,7 @@ class SamplesController < ApplicationController
   # GET /samples
   # GET /samples.json
   def index
-  	result = {'result' => "result", 'user_id' => "user_id", 'now' => Date.today, 'ip'=>request.ip, 'remote_ip'=>request.remote_ip}
+  	result = {'now' => Time.now, 'ip'=>request.ip, 'remote_ip'=>request.remote_ip}
     render :json => result
   end
 
