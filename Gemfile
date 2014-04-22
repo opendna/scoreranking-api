@@ -51,3 +51,5 @@ group :production do
   gem 'newrelic_rpm'
   gem 'ey_config'
 end
+
+gem 'ar-octopus'
