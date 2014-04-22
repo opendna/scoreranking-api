@@ -1,6 +1,7 @@
 ScorerankingApi::Application.routes.draw do
 
-  resources :user_infos
+  resources :tests
+  root :to => 'tests#index'
 
   #
   # スコア送信API
