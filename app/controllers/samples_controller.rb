@@ -2,12 +2,8 @@ class SamplesController < ApplicationController
   # GET /samples
   # GET /samples.json
   def index
-    @samples = Sample.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @samples }
-    end
+  	result = {'result' => "result", 'user_id' => "user_id", 'now' => Date.today, 'ip'=>request.ip, 'remote_ip'=>request.remote_ip}
+    render :json => result
   end
 
   # GET /samples/1
