@@ -40,24 +40,7 @@ ScorerankingApi::Application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production
-  # Global enable/disable all memcached usage
-  config.perform_caching = true
-  # Disable/enable fragment and page caching in ActionController
-  config.action_controller.perform_caching = true
-  # The underlying cache store to use.
-  # memcached_config = YAML.load_file(Rails.root.join('config/memcached.yml'))
-  # memcached_hosts = memcached_config['defaults']['servers']
-  # pass the servers to dalli setup
-  # config.cache_store = :dalli_store, *memcached_hosts
-
-  # passengerの場合
-  # if defined?(PhusionPassenger)
-  #   PhusionPassenger.on_event(:starting_worker_process) do |forked|
-  #     Rails.cache.reset if forked
-  # 
-  #     ObjectSpace.each_object(ActionDispatch::Session::DalliStore) { |obj| obj.reset }
-  #   end
-  # end
+  # config.cache_store = :mem_cache_store
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"
