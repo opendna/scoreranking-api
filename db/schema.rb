@@ -11,11 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140422013221) do
+ActiveRecord::Schema.define(:version => 20140422021516) do
 
   create_table "ranking_version", :id => false, :force => true do |t|
     t.integer "app_id",                         :null => false
     t.integer "current_version", :default => 0
+  end
+
+  create_table "samples", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "score__1__1", :id => false, :force => true do |t|

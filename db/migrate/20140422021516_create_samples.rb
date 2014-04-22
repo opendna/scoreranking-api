@@ -1,6 +1,6 @@
-class CreateTests < ActiveRecord::Migration
+class CreateSamples < ActiveRecord::Migration
   def change
-    create_table :tests do |t|
+    create_table :samples do |t|
       t.integer :id
       t.string :name
 
