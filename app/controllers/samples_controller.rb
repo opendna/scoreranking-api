@@ -8,14 +8,14 @@ class SamplesController < ApplicationController
 
   def master
     @result = Sample.first
-    result = {'now' => Time.now}
-    render :json => result.merge @result
+    result = {'master now' => Time.now, 'Sample.first' => @result}
+    render :json => result
   end
   
   def slave1
     @result = Sample.using(:slave1).first
-    result = {'now' => Time.now}
-    render :json => result.merge @result
+    result = {'slave1 now' => Time.now, 'Sample.first' => @result}
+    render :json => result
   end
 
   # GET /samples/1
