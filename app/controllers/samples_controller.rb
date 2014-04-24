@@ -7,7 +7,7 @@ class SamplesController < ApplicationController
   end
 
   def master
-    @result = Sample.first
+    @result = Sample.using(:master).first
     result = {'master now' => Time.now, 'Sample.first' => @result}
     render :json => result
   end
